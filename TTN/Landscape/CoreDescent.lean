@@ -38,7 +38,8 @@ noncomputable def corePerturb (K : Finset a.G.edgeSet)
       (fun e : a.Inc v => (⟨e.1, e.2.1⟩ : a.G.edgeSet) ∈ K), η ⟨e.1, e.2.1⟩ (bi e))
     * G v bi xv
 
-/-- **Mixed-term vanishing, component-supported form.** If every
+/-- **Paper correspondence (stronger): Lemma E.8, mixed terms vanish under a coordinated
+core perturbation.** This is the generalized component-supported form. If every
 `K`-edge carries a direction `η_E` killed by the unfoldings of `θ` at BOTH endpoints, `G`
 vanishes off `S` and ignores the `K`-slots, and every proper nonempty subset of `S` is left
 by a `K`-edge (connectivity of the component), then the coordinated perturbation moves the
@@ -323,7 +324,8 @@ theorem represented_add_corePerturb (θ : a.Param) (S : Finset a.V)
     have hsmem := hEq ▸ Finset.mem_univ s
     exact (Finset.mem_sdiff.mp hsmem).2 hs), Finset.sum_singleton, hGuniv, hGlead]
 
-/-- **Strict local descent.** Any perturbation direction that moves
+/-- **Paper correspondence (stronger): Lemma E.9, strict local descent.**
+This is the generalized pure-power-move form. Any perturbation direction that moves
 the represented tensor by exactly `t^N·U` with `⟨R, U⟩ < 0` strictly decreases the loss for
 all small `t > 0`. -/
 theorem exists_loss_lt_of_pow_move (Tstar : a.Ext → ℝ) (θ : a.Param)

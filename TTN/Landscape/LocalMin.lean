@@ -25,7 +25,8 @@ namespace Arch
 
 variable {a : Arch}
 
-/-- **Theorem 4.3, core form.** A minimum-norm local minimum of the loss for a
+/-- **Paper correspondence: Theorem 4.3, minimum-norm local minima are global,
+zero-residual form.** A minimum-norm local minimum of the loss for a
 realizable target represents the target exactly. -/
 theorem minNorm_isLocalMin_represented_eq {Tstar : a.Ext → ℝ} (hreal : a.Realizable Tstar)
     {θ : a.Param} (hmn : a.MinNorm θ) (hloc : IsLocalMin (a.loss Tstar) θ) :
@@ -175,8 +176,8 @@ theorem minNorm_isLocalMin_represented_eq {Tstar : a.Ext → ℝ} (hreal : a.Rea
               ⟨us, husS⟩ t)
             hRU' hlocb).elim
 
-/-- **Theorem 4.3, paper form.** Every minimum-norm local minimum is a global
-minimum, with zero loss. -/
+/-- **Paper correspondence: Theorem 4.3, minimum-norm local minima are global.**
+Every minimum-norm local minimum is a global minimum, with zero loss. -/
 theorem minNorm_isLocalMin_isGlobalMin {Tstar : a.Ext → ℝ} (hreal : a.Realizable Tstar)
     {θ : a.Param} (hmn : a.MinNorm θ) (hloc : IsLocalMin (a.loss Tstar) θ) :
     a.IsGlobalMin Tstar θ ∧ a.loss Tstar θ = 0 := by

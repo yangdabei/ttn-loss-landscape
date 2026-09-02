@@ -38,10 +38,10 @@ to a minimum-norm representative. The present library does not formalize the
 semialgebraic geometry and geometric-invariant-theory results used in the paper
 to justify that property.
 
-The per-bond conservation theorem is stated for the squared loss and an `Arch`,
-which includes a tree hypothesis. It does not formalize the paper's full route
-from balancedness to preservation of global minimum norm, nor the version for
-an arbitrary differentiable loss of the represented tensor.
+The per-bond conservation theorem is stated for an `Arch`, which includes a
+tree hypothesis even though its proof uses only the local two-endpoint bond
+structure. The library does not formalize the paper's full route from
+balancedness to preservation of global minimum norm.
 
 The computational-hardness and Boolean-expressivity arguments are not part of
 the Lean development.

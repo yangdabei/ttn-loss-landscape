@@ -355,7 +355,9 @@ theorem exists_descent_data_of_not_critical (Tstar : a.Ext → ℝ) {θ : a.Para
   rw [a.represented_add_corePerturb θ {v} ∅ η0 G hη hG0 hGind hconn
     ⟨v, Finset.mem_singleton_self v⟩ t, Finset.card_singleton, hUfeq]
 
-/-- **Escape paths.** Given a minimum-norm point `θm` in `θ₀`'s fiber joined to `θ₀` by a
+/-- **Paper correspondence (conditional): Corollary 4.4, escape path from a non-solution.**
+This version assumes the explicit in-fiber path hypothesis `hfiber`. Given a minimum-norm point
+`θm` in `θ₀`'s fiber joined to `θ₀` by a
 continuous in-fiber path, there is a continuous path starting at `θ₀` with non-increasing
 loss that ends strictly below `L(θ₀)`. -/
 theorem exists_escape_path {Tstar : a.Ext → ℝ} (hreal : a.Realizable Tstar)

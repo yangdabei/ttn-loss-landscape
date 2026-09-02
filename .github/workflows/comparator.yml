@@ -1,0 +1,180 @@
+name: Comparator certificate
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'TTN/**'
+      - 'audit/comparator/**'
+      - 'lakefile.toml'
+      - 'lake-manifest.json'
+      - 'lean-toolchain'
+      - 'formalization.yaml'
+      - '.github/workflows/comparator.yml'
+  pull_request:
+    paths:
+      - 'TTN/**'
+      - 'audit/comparator/**'
+      - 'lakefile.toml'
+      - 'lake-manifest.json'
+      - 'lean-toolchain'
+      - 'formalization.yaml'
+      - '.github/workflows/comparator.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: comparator-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  theorem-4-3:
+    name: Theorem 4.3 (Landrun + Lean kernel)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    env:
+      COMPARATOR_REV: fd2e25de155523dbce1f35d410511f9f63998461
+      LEAN4EXPORT_REV: 8554815c2dc6b7abe99ec1f08849c9759ba77947
+      LANDRUN_REV: 5ed4a3db3a4ad930d577215c6b9abaa19df7f99f
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - name: Free runner disk space
+        # jlumbroso/free-disk-space v1.3.1, pinned as in leanprover/lean-eval.
+        uses: jlumbroso/free-disk-space@54081f138730dfa15788a46383842cd2f914a1be
+        with:
+          tool-cache: false
+          android: true
+          dotnet: true
+          haskell: true
+          large-packages: true
+          docker-images: true
+          swap-storage: true
+
+      - name: Check out the trusted certificate and solution
+        # actions/checkout v7.0.1, pinned as in leanprover/lean-eval.
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+
+      - name: Install the pinned Lean toolchain
+        # leanprover/lean-action v1.5.0. Building is deliberately deferred to Comparator.
+        uses: leanprover/lean-action@38fbc41a8c28c4cbaec22d7f7de508ec2e7c0dd9
+        with:
+          auto-config: false
+          build: false
+          test: false
+          lint: false
+          use-mathlib-cache: false
+          use-github-cache: false
+
+      - name: Install the pinned Go toolchain
+        # actions/setup-go v7.0.0, pinned as in leanprover/lean-eval.
+        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e
+        with:
+          go-version: '1.25.12'
+          cache: false
+
+      - name: Install pinned Landrun
+        run: |
+          set -euo pipefail
+          go install "github.com/zouuup/landrun/cmd/landrun@${LANDRUN_REV}"
+          landrun_bin="$(go env GOPATH)/bin/landrun"
+          test -x "$landrun_bin"
+          echo "LANDRUN_BIN=$landrun_bin" >> "$GITHUB_ENV"
+
+      - name: Build pinned Comparator and matching lean4export
+        run: |
+          set -euo pipefail
+          mkdir -p .ci
+          git clone https://github.com/leanprover/comparator.git .ci/comparator
+          git -C .ci/comparator checkout --detach "$COMPARATOR_REV"
+          test "$(git -C .ci/comparator rev-parse HEAD)" = "$COMPARATOR_REV"
+          cmp --silent lean-toolchain .ci/comparator/lean-toolchain
+
+          (
+            cd .ci/comparator
+            lake build comparator lean4export
+          )
+
+          lean4export_checkout=.ci/comparator/.lake/packages/lean4export
+          test "$(git -C "$lean4export_checkout" rev-parse HEAD)" = "$LEAN4EXPORT_REV"
+
+          comparator_bin="$GITHUB_WORKSPACE/.ci/comparator/.lake/build/bin/comparator"
+          lean4export_bin="$GITHUB_WORKSPACE/$lean4export_checkout/.lake/build/bin/lean4export"
+          test -x "$comparator_bin"
+          test -x "$lean4export_bin"
+          echo "COMPARATOR_BIN=$comparator_bin" >> "$GITHUB_ENV"
+          echo "LEAN4EXPORT_BIN=$lean4export_bin" >> "$GITHUB_ENV"
+
+      - name: Initialize the certificate without compiling the solution
+        run: |
+          set -euo pipefail
+
+          cp lake-manifest.json "$RUNNER_TEMP/lake-manifest.json"
+          lake update
+          lake exe cache get
+          cmp --silent "$RUNNER_TEMP/lake-manifest.json" lake-manifest.json
+
+          # A clean certificate must hand Solution.lean to Comparator as source,
+          # never as an artifact produced by an earlier, unsandboxed build.
+          test ! -e .lake/build/lib/lean/Solution.olean
+          test ! -e .lake/build/lib/lean/TTN/Landscape/LocalMin.olean
+          jq -e '.enable_nanoda == false' audit/comparator/config.json > /dev/null
+
+      - name: Require an effective Landrun filesystem sandbox
+        run: |
+          set -euo pipefail
+          test "$(id -u)" -ne 0
+          mkdir -p .lake/landrun-probe
+
+          allowed="$GITHUB_WORKSPACE/.lake/landrun-probe/allowed"
+          denied="$RUNNER_TEMP/ttn-landrun-denied-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          policy=(
+            --best-effort
+            --ro /
+            --rw /dev
+            --rwx "$GITHUB_WORKSPACE/.lake"
+            --ldd
+            --add-exec
+          )
+
+          "$LANDRUN_BIN" "${policy[@]}" /usr/bin/touch "$allowed"
+          test -f "$allowed"
+
+          if "$LANDRUN_BIN" "${policy[@]}" /usr/bin/touch "$denied"; then
+            echo 'Landrun allowed a write outside the project .lake directory.' >&2
+            exit 1
+          fi
+          test ! -e "$denied"
+
+      - name: Run Comparator under the outer systemd network guard
+        run: |
+          set -euo pipefail
+
+          # Comparator's own Landrun invocations isolate both builds and both
+          # exports. The outer transient unit is the additional AF_UNIX guard
+          # required by Comparator's upstream security instructions.
+          sudo systemd-run --quiet --wait --pipe --collect \
+            --uid="$(id -u)" \
+            --gid="$(id -g)" \
+            --property='RestrictAddressFamilies=~AF_UNIX' \
+            --property='IPAddressDeny=any' \
+            --property='NoNewPrivileges=yes' \
+            --working-directory="$GITHUB_WORKSPACE" \
+            --setenv="HOME=$HOME" \
+            --setenv="PATH=$PATH" \
+            --setenv="COMPARATOR_LANDRUN=$LANDRUN_BIN" \
+            --setenv="COMPARATOR_LEAN4EXPORT=$LEAN4EXPORT_BIN" \
+            "$(command -v lake)" env "$COMPARATOR_BIN" audit/comparator/config.json
+
+          {
+            echo '### Comparator certificate passed'
+            echo
+            echo 'The trusted Theorem 4.3 challenge matched the production theorem.'
+            echo 'The solution used only the permitted axioms and was accepted by the Lean kernel.'
+          } >> "$GITHUB_STEP_SUMMARY"

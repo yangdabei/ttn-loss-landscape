@@ -247,7 +247,9 @@ theorem realizableLit_iff_aggregate_rank_le (Tl : E.LitExt → ℝ) :
   rw [E.realizableLit_iff Tl, a.realizable_iff_rank_le]
   rfl
 
-/-- **Realizability for the literal external modes.** A literal target `Tl` is realizable
+/-- **Paper correspondence (partial): Proposition C.1, realizability characterization.**
+This is the exact rank-characterization clause for literal external modes; it does not formalize
+the proposition's prescribed-subspace clause. A literal target `Tl` is realizable
 iff every internal-edge matricization, with rows and columns indexed by the individual external modes
 on each side of the cut, has rank at most the corresponding bond dimension. -/
 theorem realizableLit_iff_rank_le (Tl : E.LitExt → ℝ) :

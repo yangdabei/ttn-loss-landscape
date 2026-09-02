@@ -5,17 +5,34 @@ on:
     branches: [main]
   pull_request:
 
+permissions:
+  contents: read
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+
+      - name: Validate formalization metadata
+        run: |
+          set -euo pipefail
+          python3 -m venv "$RUNNER_TEMP/formalization-schema"
+          "$RUNNER_TEMP/formalization-schema/bin/pip" install \
+            check-jsonschema==0.38.0
+          "$RUNNER_TEMP/formalization-schema/bin/check-jsonschema" \
+            --schemafile \
+            https://raw.githubusercontent.com/mathlib-initiative/formalization.yaml/99c678e569c7c4c0772db297c5ddd5e4c9b6322e/schema/formalization.schema.json \
+            formalization.yaml
 
       - name: Sorry-gate
         run: bash scripts/no_sorry.sh
 
       - name: Build (lean-action fetches the Mathlib cache, then `lake build`)
-        uses: leanprover/lean-action@v1
+        uses: leanprover/lean-action@38fbc41a8c28c4cbaec22d7f7de508ec2e7c0dd9
 
       - name: Report capstone axioms
         run: lake env lean AxiomAudit.lean

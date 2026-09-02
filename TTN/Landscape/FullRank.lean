@@ -39,7 +39,8 @@ noncomputable def matE (v : a.V) (e : a.Inc v) (W : a.NodeTensor v) :
     Matrix (Fin (a.r e.1)) (((e' : {e' : a.Inc v // e' ≠ e}) → Fin (a.r e'.1.1)) × Fin (a.n v)) ℝ :=
   fun k rest => W ((Equiv.piSplitAt e (fun e' => Fin (a.r e'.1))).symm (k, rest.1)) rest.2
 
-/-- **Definition 5.1 (full Tucker rank).** A parameter point `θ` has *full Tucker rank* if for
+/-- **Paper correspondence: Definition 5.1, full Tucker rank.** A parameter point `θ` has
+*full Tucker rank* if for
 every node `v` and every incident bond `e`, the mode-`e` unfolding of `W_v` has full row rank
 `r_e`. (Each internal edge `s(u,w)` is incident to both endpoints, so this is exactly Def 5.1:
 "for every internal edge and each endpoint, `matₑ(W_v)` has rank `r_e`".) -/
@@ -1987,7 +1988,8 @@ theorem critical_fullRank_represented_eq_aux :
       have : b.represented θ x - T x = 0 := hz
       linarith [this]
 
-/-- **Theorem 5.2 core.** A full-Tucker-rank critical point of a realizable target realizes it
+/-- **Paper correspondence: Theorem 5.2, zero-residual core conclusion.**
+A full-Tucker-rank critical point of a realizable target realizes it
 (the residual is zero). -/
 theorem critical_fullRank_represented_eq {Tstar : a.Ext → ℝ} (hreal : a.Realizable Tstar)
     {θ : a.Param} (hcrit : a.Critical Tstar θ) (hftr : a.FullTuckerRank θ) :
@@ -1995,7 +1997,8 @@ theorem critical_fullRank_represented_eq {Tstar : a.Ext → ℝ} (hreal : a.Real
   critical_fullRank_represented_eq_aux (Fintype.card a.V) a rfl Tstar
     (a.realizable_iff_rank_le.mp hreal) θ hcrit hftr
 
-/-- **Theorem 5.2.** A full-Tucker-rank critical point of a realizable target is
+/-- **Paper correspondence: Theorem 5.2, full-rank critical points are global minima.**
+A full-Tucker-rank critical point of a realizable target is
 a global minimum of the loss. The realizability hypothesis `hreal` is implicit in the paper's
 statement (its proof uses "Realizability gives `rank(T*⁽ᵉ⁾) ≤ r_e`" as a standing assumption);
 we make it explicit. `Critical` is bridged to Mathlib's `HasDerivAt` in `TTN/Landscape/Criticality.lean`. -/
@@ -2013,7 +2016,8 @@ theorem critical_fullRank_isGlobalMin {Tstar : a.Ext → ℝ} (hreal : a.Realiza
   simp only [loss]
   positivity
 
-/-- **Theorem 5.2, paper's contrapositive form.** A critical point of a realizable target that is
+/-- **Paper correspondence: Theorem 5.2, contrapositive formulation.**
+A critical point of a realizable target that is
 not a global minimum cannot have full Tucker rank. -/
 theorem not_fullRank_of_critical_of_not_isGlobalMin {Tstar : a.Ext → ℝ} (hreal : a.Realizable Tstar)
     {θ : a.Param} (hcrit : a.Critical Tstar θ) (hng : ¬ a.IsGlobalMin Tstar θ) :

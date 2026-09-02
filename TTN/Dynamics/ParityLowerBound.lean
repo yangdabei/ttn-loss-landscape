@@ -337,8 +337,9 @@ private theorem parityCoefficient_half_eq_zero (k : ℕ) (hk : 2 ≤ k) :
   unfold paritySubsetCoeff at hz
   simpa only [Finset.prod_empty, Finset.sdiff_empty, one_mul, Arch.represented] using hz
 
-/-- **Lemma I.2 (parity coefficient bound).** In the unit parameter ball around
-the halfway point, the parity component of the represented-tensor difference is
+/-- **Paper correspondence (stronger): Lemma I.2, order bound on the parity coefficient.**
+The paper only requires some positive neighborhood radius; this proves the bound throughout the
+unit parameter ball around the halfway point. The parity component of the represented-tensor difference is
 bounded by a constant times `‖θ - θ₀‖ ^ (n / 2 + 1)`, where `n = 2^k`. -/
 theorem parity_coefficient_order_bound (k : ℕ) (hk : 2 ≤ k) :
     ∃ C : ℝ, 0 < C ∧ ∀ θ : (parityArch k hk).Param,
@@ -458,8 +459,9 @@ private theorem loss_difference_expansion (a : Arch) (Tstar : a.Ext → ℝ)
           (a.represented θ x - a.represented θ₀ x) ^ 2 := by
       rw [Finset.sum_add_distrib, Finset.mul_sum]
 
-/-- **Proposition 5.3 (universal parity-saddle lower bound).** For every
-parameter perturbation in the unit Euclidean ball around the halfway point, the
+/-- **Paper correspondence (stronger): Proposition 5.3, universal parity-saddle lower
+bound.** The paper only requires some positive neighborhood radius; this proves the bound throughout
+the unit ball. For every parameter perturbation in the unit Euclidean ball around the halfway point, the
 loss decrease is no larger than order `n / 2 + 1`, with `n = 2^k`.
 
 Together with `critical_halfParam` and `parity_saddle_achievable`, this proves

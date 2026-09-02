@@ -13,3 +13,13 @@ rev = "v4.31.0"
 
 [[lean_lib]]
 name = "TTN"
+
+# Comparator certificate modules. These are deliberately excluded from
+# `defaultTargets`; Comparator builds them separately under Landrun.
+[[lean_lib]]
+name = "Challenge"
+srcDir = "audit/comparator"
+
+[[lean_lib]]
+name = "Solution"
+srcDir = "audit/comparator"

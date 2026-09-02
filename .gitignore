@@ -1,6 +1,7 @@
 # Lean and Lake build products
 /.lake/
 /lake-packages/
+/.ci/
 *.olean
 *.ilean
 *.olean.tmp

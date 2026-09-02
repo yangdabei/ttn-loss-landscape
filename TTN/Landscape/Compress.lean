@@ -216,8 +216,8 @@ private theorem sum_bondIdx_prod_inc {v : a.V}
   rw [Finset.prod_univ_sum, Fintype.piFinset_univ]
   rfl
 
-/-- On supported points, compression followed by embedding is the
-identity. -/
+/-- **Paper correspondence (conditional): Lemma E.6(2), recovery after compression.**
+On supported points, compression followed by the zero-padding embedding is the identity. -/
 theorem mapParam_compressParam
     (ι : (E : a.G.edgeSet) → Matrix (Fin (r' E.1)) (Fin (a.r E.1)) ℝ)
     (hortho : ∀ E, ι E * (ι E)ᵀ = 1) {θ : a.Param} (hsupp : SupportedOn (r' := r') ι θ) :
@@ -280,8 +280,8 @@ theorem mapParam_compressParam
         a.sum_prod_modeMul_eq_self v
           (fun e => (ι ⟨e.1, e.2.1⟩)ᵀ * ι ⟨e.1, e.2.1⟩) (θ v) hfix bi xv
 
-/-- On supported points the compression preserves
-the represented tensor. -/
+/-- **Paper correspondence (conditional): Lemma E.6(4), represented-tensor transfer.**
+On supported points the compression preserves the represented tensor. -/
 theorem represented_compressParam
     (ι : (E : a.G.edgeSet) → Matrix (Fin (r' E.1)) (Fin (a.r E.1)) ℝ)
     (hortho : ∀ E, ι E * (ι E)ᵀ = 1) {θ : a.Param} (hsupp : SupportedOn (r' := r') ι θ) :
@@ -289,8 +289,8 @@ theorem represented_compressParam
   rw [← represented_mapParam ι hortho (compressParam (hr' := hr') ι θ),
     mapParam_compressParam ι hortho hsupp]
 
-/-- On supported points the compression preserves the squared
-parameter norm. -/
+/-- **Paper correspondence (conditional): Lemma E.6(2), norm preservation at the
+compressed point.** On supported points the compression preserves the squared parameter norm. -/
 theorem paramNormSq_compressParam
     (ι : (E : a.G.edgeSet) → Matrix (Fin (r' E.1)) (Fin (a.r E.1)) ℝ)
     (hortho : ∀ E, ι E * (ι E)ᵀ = 1) {θ : a.Param} (hsupp : SupportedOn (r' := r') ι θ) :
@@ -298,7 +298,7 @@ theorem paramNormSq_compressParam
   rw [← paramNormSq_mapParam ι hortho (compressParam (hr' := hr') ι θ),
     mapParam_compressParam ι hortho hsupp]
 
-/-- Minimum norm transfers to the compressed point. -/
+/-- **Paper correspondence (conditional): Lemma E.6(3), minimum-norm transfer.** -/
 theorem minNorm_compressParam
     (ι : (E : a.G.edgeSet) → Matrix (Fin (r' E.1)) (Fin (a.r E.1)) ℝ)
     (hortho : ∀ E, ι E * (ι E)ᵀ = 1) {θ : a.Param} (hsupp : SupportedOn (r' := r') ι θ)
@@ -345,8 +345,8 @@ theorem mapParam_update (ι : (E : a.G.edgeSet) → Matrix (Fin (r' E.1)) (Fin (
               * θ' x bi' xv := hstep
       _ = _ := (congrFun (congrFun hRHS bi) xv).symm
 
-/-- The compressed point is critical for the same
-target (the `Ext` spaces coincide definitionally). -/
+/-- **Paper correspondence (conditional): Lemma E.6(3), criticality transfer.**
+The compressed point is critical for the same target (the `Ext` spaces coincide definitionally). -/
 theorem critical_compressParam
     (ι : (E : a.G.edgeSet) → Matrix (Fin (r' E.1)) (Fin (a.r E.1)) ℝ)
     (hortho : ∀ E, ι E * (ι E)ᵀ = 1) {Tstar : a.Ext → ℝ} {θ : a.Param}
@@ -392,7 +392,7 @@ theorem continuous_mapParam
   exact continuous_const.mul
     ((continuous_apply _).comp ((continuous_apply _).comp (continuous_apply v)))
 
-/-- Local minimality transfers to the compressed point. -/
+/-- **Paper correspondence (conditional): Lemma E.6(5), local-minimum transfer.** -/
 theorem isLocalMin_compressParam
     (ι : (E : a.G.edgeSet) → Matrix (Fin (r' E.1)) (Fin (a.r E.1)) ℝ)
     (hortho : ∀ E, ι E * (ι E)ᵀ = 1) {Tstar : a.Ext → ℝ} {θ : a.Param}
@@ -436,7 +436,9 @@ theorem eq_zero_of_matricizeOf_eq_zero {u w : a.V} (h : a.G.Adj u w) {T : a.Ext 
   rw [hx, h0]
   rfl
 
-/-- **Compression data**: at a minimum-norm critical point of a realizable nonzero
+/-- **Paper correspondence (conditional): Lemma E.6(1), reduction to full target cut
+rank.** For a realizable nonzero target, this constructs the reduction data used with the
+transfer lemmas above. At a minimum-norm critical point of a realizable nonzero
 target, the target-rank re-dimensioning `r'_E := rank T*⁽ᴱ⁾` is positive and dominated by
 `r`, and admits per-edge orthonormal-row bond maps `ι_E` (kernels inside the dormant
 subspaces, hence supported on `θ`); the target stays realizable at the reduced dimensions

@@ -33,6 +33,17 @@ lake env lean AxiomAudit.lean
 ```
 
 AI-assisted development is disclosed in [development history](docs/development.md).
+The root [formalization metadata](formalization.yaml) records the formalized
+scope, source alignment, automation, review status, and axioms in the
+Mathlib Initiative's v0.4 format.
+
+An additional [Comparator certificate](audit/comparator/README.md) checks the
+headline Theorem 4.3 against a separately stated trusted challenge, enforces
+the three-axiom allowlist, and replays the production proof with Lean's kernel.
+The certificate challenge deliberately contains one
+`sorry`; it is a specification hole, not part of the production library. The
+Linux workflow adds Landrun isolation, while a macOS run can exercise the
+comparison and kernel replay without that sandbox guarantee.
 
 ## Citation and license
 

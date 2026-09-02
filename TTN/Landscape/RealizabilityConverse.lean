@@ -725,7 +725,9 @@ theorem rank_le_imp_realizable {Tstar : a.Ext → ℝ} (hb : a.RankBound Tstar) 
     a.Realizable Tstar :=
   rank_le_imp_realizable_aux (Fintype.card a.V) a rfl Tstar hb
 
-/-- **Realizability characterization.** A target tensor is realizable by the TTN architecture with bond
+/-- **Paper correspondence (partial): Proposition C.1, realizability characterization.**
+This is the exact aggregate-index rank-characterization clause; it does not formalize the
+proposition's prescribed-subspace clause. A target tensor is realizable by the TTN architecture with bond
 dimensions `{r_e}` iff every internal-edge matricization has rank at most `r_e`. Combines the
 forward direction (`realizable_imp_rank_le`, `TTN/Landscape/Realizability.lean`) with the converse above. -/
 theorem realizable_iff_rank_le {Tstar : a.Ext → ℝ} :

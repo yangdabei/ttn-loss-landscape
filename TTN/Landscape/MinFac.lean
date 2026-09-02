@@ -31,7 +31,8 @@ namespace MinFac
 
 variable {m n : Type*} [Fintype m] [Fintype n] {R : ℕ}
 
-/-- **Minimal factorization.** `(A, B)` is a minimal factorization of
+/-- **Paper correspondence: Definition G.1, minimal two-factor factorization.**
+`(A, B)` is a minimal factorization of
 `C := A * B` if both factors have the same rank as the product. -/
 def IsMinimalFac (A : Matrix m (Fin R) ℝ) (B : Matrix (Fin R) n ℝ) : Prop :=
   A.rank = (A * B).rank ∧ B.rank = (A * B).rank
@@ -81,8 +82,9 @@ theorem rank_add_finrank_sup (A : Matrix m (Fin R) ℝ) (B : Matrix (Fin R) n �
   have h2 : B.rank = Module.finrank ℝ (colB B : Submodule ℝ (Fin R → ℝ)) := rfl
   omega
 
-/-- A pair `(A, B)` is a minimal factorization iff the bond space
-splits as `ℝ^r = col B ⊕ ker A`. -/
+/-- **Paper correspondence: Lemma G.2(i), direct-sum characterization of minimal
+factorizations.** A pair `(A, B)` is a minimal factorization iff the bond space splits as
+`ℝ^r = col B ⊕ ker A`. -/
 theorem isMinimalFac_iff_isCompl (A : Matrix m (Fin R) ℝ) (B : Matrix (Fin R) n ℝ) :
     IsMinimalFac A B ↔ IsCompl (colB B) (kerA A) := by
   classical
@@ -153,8 +155,8 @@ private theorem exists_inner_compl {U W : Submodule ℝ (Fin R → ℝ)} (hUW : 
           rw [codisjoint_iff.mp hq.codisjoint]
       _ = W := Submodule.map_subtype_top W
 
-/-- The `GL(r)`-orbit closure of `(A, B)` contains a minimal factorization
-of `A * B`. -/
+/-- **Paper correspondence: Lemma G.2(ii), existence in the gauge-orbit closure.**
+The `GL(r)`-orbit closure of `(A, B)` contains a minimal factorization of `A * B`. -/
 theorem exists_isMinimalFac_mem_closure_orbit (A : Matrix m (Fin R) ℝ)
     (B : Matrix (Fin R) n ℝ) :
     ∃ (A₀ : Matrix m (Fin R) ℝ) (B₀ : Matrix (Fin R) n ℝ),
@@ -389,8 +391,8 @@ theorem exists_isMinimalFac_mem_closure_orbit (A : Matrix m (Fin R) ℝ)
         hM₄B, hM₅B, smul_zero, add_zero, add_zero, add_comm]
     exact Prod.ext hA'.symm hB'.symm
 
-/-- Any two minimal factorizations of the same matrix are related by a
-gauge `g ∈ GL(r)`. -/
+/-- **Paper correspondence: Lemma G.2(iii), uniqueness up to gauge.**
+Any two minimal factorizations of the same matrix are related by a gauge `g ∈ GL(r)`. -/
 theorem isMinimalFac_orbit {A₀ A₁ : Matrix m (Fin R) ℝ} {B₀ B₁ : Matrix (Fin R) n ℝ}
     (h₀ : IsMinimalFac A₀ B₀) (h₁ : IsMinimalFac A₁ B₁) (hC : A₀ * B₀ = A₁ * B₁) :
     ∃ g : GL (Fin R) ℝ, A₁ = A₀ * ((g⁻¹ : GL (Fin R) ℝ) : Matrix (Fin R) (Fin R) ℝ) ∧ B₁ = ((g : GL (Fin R) ℝ) : Matrix (Fin R) (Fin R) ℝ) * B₀ := by

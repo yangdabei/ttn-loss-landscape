@@ -52,8 +52,9 @@ theorem not_side_right {u w : a.V} (h : a.G.Adj u w) : ¬ a.Side h w :=
 
 /-! ### Dormant subspace -/
 
-/-- **Dormant subspace.** For the internal edge `e = s(u, w)` (oriented by
-`h : G.Adj u w`), the dormant subspace `D_e ⊆ ℝ^{r_e}` is the set of bond directions
+/-- **Paper correspondence: Definition E.1, dormant subspace.** For the internal edge
+`e = s(u, w)` (oriented by `h : G.Adj u w`), the dormant subspace
+`D_e ⊆ ℝ^{r_e}` is the set of bond directions
 annihilated by BOTH endpoint tensors on their `e`-mode:
 `D_e = ker(matₑ W_u) ∩ ker(matₑ W_v)`. Our `matE` carries the bond on ROWS, so the paper's
 `matₑ(W)·d` is `(matE …)ᵀ *ᵥ d` here. -/
@@ -702,8 +703,8 @@ theorem isUnit_of_ker_mulVecLin_eq_bot {n : Type*} [Fintype n] [DecidableEq n]
 
 /-! ### Minimum-norm kernel identities -/
 
-/-- **Minimum-norm kernel identity at `H_e`**:
-`ker H_e = D_e`. Chain: `ker H ⊆ ker matₑW_u ⊆ ker F ⊆ ker matₑW_w ⊆ ker H`, the middle
+/-- **Paper correspondence: Proposition E.2, the `ker H_e = D_e` clause.**
+Chain: `ker H ⊆ ker matₑW_u ⊆ ker F ⊆ ker matₑW_w ⊆ ker H`, the middle
 inclusions by factoring, the outer two by the min-norm zero-the-slice argument. -/
 theorem minNorm_ker_Hfun_eq_dormant {u w : a.V} (h : a.G.Adj u w) {θ : a.Param}
     (hmn : a.MinNorm θ) :
@@ -722,7 +723,7 @@ theorem minNorm_ker_Hfun_eq_dormant {u w : a.V} (h : a.G.Adj u w) {θ : a.Param}
     rw [LinearMap.mem_ker, Matrix.mulVecLin_apply] at h2 ⊢
     exact a.Hfun_mulVec_eq_zero h θ h2
 
-/-- **Minimum-norm kernel identity at `F_e`**: `ker F_e = D_e`. -/
+/-- **Paper correspondence: Proposition E.2, the `ker F_e = D_e` clause.** -/
 theorem minNorm_ker_Ffun_eq_dormant {u w : a.V} (h : a.G.Adj u w) {θ : a.Param}
     (hmn : a.MinNorm θ) :
     LinearMap.ker (a.Ffun h θ).mulVecLin = a.dormant h θ := by
@@ -740,7 +741,8 @@ theorem minNorm_ker_Ffun_eq_dormant {u w : a.V} (h : a.G.Adj u w) {θ : a.Param}
     rw [LinearMap.mem_ker, Matrix.mulVecLin_apply] at h1 ⊢
     exact a.Ffun_mulVec_eq_zero h θ h1
 
-/-- **Minimum-norm dimension count**: `rank T⁽ᵉ⁾ + dim D_e = r_e` (stated additively;
+/-- **Paper correspondence: Proposition E.2, dormant-dimension/rank-count clause.**
+`rank T⁽ᵉ⁾ + dim D_e = r_e` (stated additively;
 the paper writes `dim D_e = r_e − rank T⁽ᵉ⁾`). Via `T⁽ᵉ⁾ = F Hᵀ` with `ker F = ker H = D_e`:
 `range Hᵀ` meets `ker F` trivially (row space ∩ kernel = 0 over `ℝ`), so
 `rank(F Hᵀ) = rank H = r_e − dim D_e`. -/
@@ -915,8 +917,9 @@ theorem ker_matricizeOf_mul_Hfun_eq_dormant {Tstar : a.Ext → ℝ} {θ : a.Para
 
 /-! ### Target alignment, rank comparison, and cross-Gram invertibility -/
 
-/-- **Active directions are target-aligned**, complement-free form: at a
-min-norm critical point, for ANY factorization `T*⁽ᵉ⁾ = F* H*ᵀ` through the bond space, the
+/-- **Paper correspondence (stronger): Proposition E.3, active directions are target-aligned.**
+In complement-free form, at a min-norm critical point, for ANY factorization
+`T*⁽ᵉ⁾ = F* H*ᵀ` through the bond space, the
 cross-Gram `M_e = H*ᵀ H_e` satisfies `ker M_e ⊆ D_e`. (Equivalent to the paper's "`M_e` is
 injective on `A_e = D_eᗮ`", since `D_e = ker H_e ⊆ ker M_e` always.) Corollary of
 `ker_matricizeOf_mul_Hfun_eq_dormant`: `M_e x = 0 ⇒ T*⁽ᵉ⁾H x = F*(H*ᵀH x) = 0 ⇒ x ∈ D_e`. -/
@@ -932,7 +935,8 @@ theorem minNorm_critical_ker_crossGram_le_dormant {Tstar : a.Ext → ℝ} {θ : 
     LinearMap.mem_ker, Matrix.mulVecLin_apply, hFH, Matrix.mul_assoc,
     ← Matrix.mulVec_mulVec, hx, Matrix.mulVec_zero]
 
-/-- **Model rank is bounded by target rank**: at a minimum-norm critical point,
+/-- **Paper correspondence (stronger): Corollary E.4, model cut rank is bounded by target
+cut rank.** At a minimum-norm critical point,
 `rank T⁽ᵉ⁾ ≤ rank T*⁽ᵉ⁾` on every internal edge — no realizability or bond-bound side
 hypothesis; in particular, the paper's standing realizability assumption is not needed here.
 Proof: `rank T⁽ᵉ⁾ = r_e − dim D_e = rank(T*⁽ᵉ⁾H_e)
@@ -948,7 +952,8 @@ theorem minNorm_critical_rank_le_target {Tstar : a.Ext → ℝ} {θ : a.Param}
     Matrix.rank_mul_le_left _ _
   omega
 
-/-- **Full model rank implies an invertible cross-Gram**: at a minimum-norm critical point
+/-- **Paper correspondence (stronger): Corollary E.5, full model cut rank makes the
+cross-Gram invertible.** At a minimum-norm critical point
 with `rank T⁽ᵉ⁾ = r_e`, the cross-Gram of ANY factorization of `T*⁽ᵉ⁾` is invertible.
 (`dim D_e = 0` by the dimension count, so `ker M_e = ⊥` by target alignment; a square matrix over a field with
 trivial kernel is a unit.) -/
@@ -969,8 +974,8 @@ theorem minNorm_critical_isUnit_crossGram {Tstar : a.Ext → ℝ} {θ : a.Param}
 
 /-! ### Endpoint kernel identities and the full-Tucker-rank bridge -/
 
-/-- At a min-norm point the **left endpoint unfolding's kernel** is exactly the dormant
-subspace (all four kernels coincide). -/
+/-- **Paper correspondence: Proposition E.2, the left-endpoint unfolding-kernel clause.**
+At a min-norm point this kernel is exactly the dormant subspace (all four kernels coincide). -/
 theorem minNorm_ker_matE_left_eq_dormant {u w : a.V} (h : a.G.Adj u w) {θ : a.Param}
     (hmn : a.MinNorm θ) :
     LinearMap.ker ((a.matE u (adjIncLeft h) (θ u))ᵀ).mulVecLin = a.dormant h θ := by
@@ -984,8 +989,8 @@ theorem minNorm_ker_matE_left_eq_dormant {u w : a.V} (h : a.G.Adj u w) {θ : a.P
        by rw [LinearMap.mem_ker, Matrix.mulVecLin_apply]; exact h3⟩
   · exact inf_le_left
 
-/-- At a min-norm point the **right endpoint unfolding's kernel** is exactly the dormant
-subspace. -/
+/-- **Paper correspondence: Proposition E.2, the right-endpoint unfolding-kernel clause.**
+At a min-norm point this kernel is exactly the dormant subspace. -/
 theorem minNorm_ker_matE_right_eq_dormant {u w : a.V} (h : a.G.Adj u w) {θ : a.Param}
     (hmn : a.MinNorm θ) :
     LinearMap.ker ((a.matE w (adjIncRight h) (θ w))ᵀ).mulVecLin = a.dormant h θ := by

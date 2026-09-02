@@ -4,9 +4,10 @@ import TTN.Landscape.Dormant
 /-!
 # Per-bond conservation law under gradient flow
 
-This module proves the squared-loss specialization of the paper's full matrix conservation
-law for the balancedness defect. Its chain instance is the familiar deep-linear-network
-identity `d/dt(WᵢᵀWᵢ − Wᵢ₊₁Wᵢ₊₁ᵀ) = 0`.
+This module proves the paper's full matrix conservation law for the balancedness defect,
+both for an arbitrary continuously differentiable output loss `ell ∘ represented` and for
+the squared loss used by the landscape theorems. Its chain instance is the familiar
+deep-linear-network identity `d/dt(WᵢᵀWᵢ − Wᵢ₊₁Wᵢ₊₁ᵀ) = 0`.
 
 * `gradNode`: the Euclidean gradient of the loss with respect to one node tensor, in the
   variational vocabulary of `Critical`.
@@ -16,11 +17,17 @@ identity `d/dt(WᵢᵀWᵢ − Wᵢ₊₁Wᵢ₊₁ᵀ) = 0`.
   `hasDerivAt_loss_line`), and `Critical = (gradNode ≡ 0)`.
 * `IsGradFlow` — gradient flow of the loss, entrywise `HasDerivAt` form
   (`θ̇ = −∇L(θ)`; certified-flow style — the flow is a hypothesis, not a construction).
+* `gradNodeOf`, `hasDerivAt_composedLoss_line_gradNodeOf`, and `IsGradFlowOf` are the
+  corresponding definitions and derivative bridge for an arbitrary output loss
+  `ell : (Ext → ℝ) → ℝ`.
 * `represented_update_modeMul_transfer` — the **transfer identity**: inserting a
   square matrix `M` on the `u`-side of bond `e = s(u,w)` equals inserting `Mᵀ` on the
   `w`-side. A pure bond-sum reindex over the shared edge index.
 * `bondGramDiff_conserved`: along any
-  gradient flow, `Δ_e := matₑ(W_u)matₑ(W_u)ᵀ − matₑ(W_w)matₑ(W_w)ᵀ` is constant.
+  squared-loss gradient flow, `Δ_e := matₑ(W_u)matₑ(W_u)ᵀ − matₑ(W_w)matₑ(W_w)ᵀ`
+  is constant.
+* `bondGramDiff_conserved_of_contDiff`: the paper's general `C¹` output-loss form of
+  the same conservation law.
 * `bondGramDiff_eq_zero_of_balanced_init` — the balanced slice `Δ_e ≡ 0` is flow-invariant.
 * `bondKernel_iff_of_balanced`: on the balanced slice the two endpoint bond kernels
   coincide at every time.
@@ -55,6 +62,19 @@ tensor: `∑_x R(x) · T(θ with W_v ← e_{(bi,xv)})(x)`, by multilinearity of 
 noncomputable def gradNode (Tstar : a.Ext → ℝ) (θ : a.Param) (v : a.V) : a.NodeTensor v :=
   fun bi xv => ∑ x : a.Ext, a.residual Tstar θ x *
     a.represented (Function.update θ v (fun bi' xv' => if bi' = bi ∧ xv' = xv then 1 else 0)) x
+
+open Classical in
+/-- **The Euclidean coordinate gradient for an arbitrary output loss.** The `(bi, xv)`
+entry is the Fréchet derivative of `ell` at the represented tensor, applied to the
+represented first-order variation obtained by replacing node `v` with the matching
+standard basis tensor. For differentiable `ell`, this is exactly the coordinate derivative
+of `ell ∘ represented` with respect to that parameter entry. -/
+noncomputable def gradNodeOf (ell : (a.Ext → ℝ) → ℝ) (θ : a.Param) (v : a.V) :
+    a.NodeTensor v :=
+  fun bi xv =>
+    fderiv ℝ ell (a.represented θ)
+      (a.represented (Function.update θ v
+        (fun bi' xv' => if bi' = bi ∧ xv' = xv then 1 else 0)))
 
 /-- Splitting the node product of an updated parameter at the updated node.
 Helper (same pattern as `hasDerivAt_represented_line`'s product fold). -/
@@ -107,6 +127,38 @@ theorem represented_update_eq_sum_single (θ : a.Param) (v : a.V) (δ : a.NodeTe
         rw [a.prod_update_eq_mul_erase θ v _ b x]
         exact mul_assoc _ _ _
 
+/-- Applying the output derivative to an arbitrary one-node variation is the Frobenius
+pairing of that variation with `gradNodeOf`. This is the generic-output-loss analogue of
+`pairing_eq_sum_gradNode`. -/
+theorem fderiv_represented_update_eq_sum_gradNodeOf
+    (ell : (a.Ext → ℝ) → ℝ) (θ : a.Param) (v : a.V) (δ : a.NodeTensor v) :
+    fderiv ℝ ell (a.represented θ) (a.represented (Function.update θ v δ))
+      = ∑ bi : a.BondIdx v, ∑ xv : Fin (a.n v),
+          δ bi xv * a.gradNodeOf ell θ v bi xv := by
+  classical
+  have hdecomp : a.represented (Function.update θ v δ)
+      = ∑ bi : a.BondIdx v, ∑ xv : Fin (a.n v),
+          δ bi xv • a.represented (Function.update θ v
+            (fun bi' xv' => if bi' = bi ∧ xv' = xv then 1 else 0)) := by
+    funext x
+    rw [a.represented_update_eq_sum_single θ v δ x]
+    simp only [Finset.sum_apply, Pi.smul_apply, smul_eq_mul]
+  rw [hdecomp, map_sum]
+  refine Finset.sum_congr rfl fun bi _ => ?_
+  rw [map_sum]
+  refine Finset.sum_congr rfl fun xv _ => ?_
+  simp only [map_smul, gradNodeOf, smul_eq_mul]
+
+/-- The coordinatewise line derivative of `represented`, bundled as a derivative valued
+in the finite output tensor space. -/
+theorem hasDerivAt_represented_line_vector (θ η : a.Param) :
+    HasDerivAt
+      (fun t : ℝ => a.represented (fun v bi xv => θ v bi xv + t * η v bi xv))
+      (∑ v, a.represented (Function.update θ v (η v))) 0 := by
+  rw [hasDerivAt_pi]
+  intro x
+  simpa only [Finset.sum_apply] using a.hasDerivAt_represented_line θ η x
+
 /-- The variational pairing of `Critical` is the entrywise pairing against `gradNode`:
 `⟨R, T(θ with W_v ← δ)⟩ = ⟨δ, ∇_{W_v} L⟩` (linearity of `T(update θ v ·)` in the slot). -/
 theorem pairing_eq_sum_gradNode (Tstar : a.Ext → ℝ) (θ : a.Param) (v : a.V)
@@ -143,6 +195,35 @@ theorem hasDerivAt_loss_line_gradNode (Tstar : a.Ext → ℝ) (θ η : a.Param) 
   rwa [Finset.sum_congr rfl
     (fun v _ => a.pairing_eq_sum_gradNode Tstar θ v (η v))] at h
 
+/-- **`gradNodeOf` is the gradient of an arbitrary differentiable output loss.**
+Every line derivative of `ell ∘ represented` is the Frobenius pairing of the parameter
+direction against `gradNodeOf ell θ`. The paper assumes `ell` is `C¹`; differentiability at
+the represented tensor is the weaker pointwise assumption needed for this identity. -/
+theorem hasDerivAt_composedLoss_line_gradNodeOf
+    (ell : (a.Ext → ℝ) → ℝ) (θ η : a.Param)
+    (hell : DifferentiableAt ℝ ell (a.represented θ)) :
+    HasDerivAt
+      (fun t : ℝ => ell (a.represented (fun v bi xv => θ v bi xv + t * η v bi xv)))
+      (∑ v, ∑ bi : a.BondIdx v, ∑ xv : Fin (a.n v),
+        η v bi xv * a.gradNodeOf ell θ v bi xv) 0 := by
+  have hrep := a.hasDerivAt_represented_line_vector θ η
+  have hzero : a.represented θ
+      = a.represented (fun v bi xv => θ v bi xv + (0 : ℝ) * η v bi xv) := by
+    congr 1
+    funext v bi xv
+    ring
+  have hcomp := hell.hasFDerivAt.comp_hasDerivAt_of_eq 0 hrep hzero
+  have hval :
+      fderiv ℝ ell (a.represented θ)
+          (∑ v, a.represented (Function.update θ v (η v)))
+        = ∑ v, ∑ bi : a.BondIdx v, ∑ xv : Fin (a.n v),
+            η v bi xv * a.gradNodeOf ell θ v bi xv := by
+    rw [map_sum]
+    exact Finset.sum_congr rfl fun v _ =>
+      a.fderiv_represented_update_eq_sum_gradNodeOf ell θ v (η v)
+  rw [hval] at hcomp
+  convert hcomp using 1 <;> rfl
+
 /-- `Critical` (Theorem 5.2's variational criticality) is exactly `∇L(θ) = 0` entrywise. -/
 theorem critical_iff_gradNode_eq_zero (Tstar : a.Ext → ℝ) (θ : a.Param) :
     a.Critical Tstar θ ↔
@@ -165,6 +246,14 @@ discharges the trust that the right-hand side is the gradient. -/
 def IsGradFlow (Tstar : a.Ext → ℝ) (θ : ℝ → a.Param) : Prop :=
   ∀ (v : a.V) (bi : a.BondIdx v) (xv : Fin (a.n v)) (t : ℝ),
     HasDerivAt (fun s : ℝ => θ s v bi xv) (-(a.gradNode Tstar (θ t) v bi xv)) t
+
+/-- **Gradient flow for an arbitrary output loss `ell ∘ represented`**, entrywise.
+The flow is a hypothesis, not an existence claim. When `ell` is differentiable,
+`hasDerivAt_composedLoss_line_gradNodeOf` verifies that the right-hand side is the
+Euclidean/Frobenius gradient of the composed loss. -/
+def IsGradFlowOf (ell : (a.Ext → ℝ) → ℝ) (θ : ℝ → a.Param) : Prop :=
+  ∀ (v : a.V) (bi : a.BondIdx v) (xv : Fin (a.n v)) (t : ℝ),
+    HasDerivAt (fun s : ℝ => θ s v bi xv) (-(a.gradNodeOf ell (θ t) v bi xv)) t
 
 /-! ### The transfer identity (the crux; no tree property) -/
 
@@ -331,6 +420,22 @@ theorem gradPair_modeMul_transfer {u w : a.V} (h : a.G.Adj u w) (Tstar : a.Ext �
     ← a.pairing_eq_sum_gradNode Tstar θ w (a.modeMul w (adjIncRight h) Mᵀ (θ w)),
     a.represented_update_modeMul_transfer h θ M]
 
+/-- Gradient-pairing transfer for an arbitrary output loss. It is an immediate
+consequence of the represented-tensor transfer identity because the same output
+Fréchet derivative is applied on both sides. -/
+theorem gradPair_modeMul_transferOf {u w : a.V} (h : a.G.Adj u w)
+    (ell : (a.Ext → ℝ) → ℝ) (θ : a.Param)
+    (M : Matrix (Fin (a.r s(u, w))) (Fin (a.r s(u, w))) ℝ) :
+    ∑ bi : a.BondIdx u, ∑ xu : Fin (a.n u),
+        a.modeMul u (adjIncLeft h) M (θ u) bi xu * a.gradNodeOf ell θ u bi xu
+      = ∑ bi : a.BondIdx w, ∑ xw : Fin (a.n w),
+        a.modeMul w (adjIncRight h) Mᵀ (θ w) bi xw * a.gradNodeOf ell θ w bi xw := by
+  rw [← a.fderiv_represented_update_eq_sum_gradNodeOf ell θ u
+      (a.modeMul u (adjIncLeft h) M (θ u)),
+    ← a.fderiv_represented_update_eq_sum_gradNodeOf ell θ w
+      (a.modeMul w (adjIncRight h) Mᵀ (θ w)),
+    a.represented_update_modeMul_transfer h θ M]
+
 /-! ### The bond Gram matrices and the conservation law -/
 
 /-- The **bond Gram matrix** of a node tensor at an incident bond: `matₑ(W) matₑ(W)ᵀ`,
@@ -369,6 +474,37 @@ theorem hasDerivAt_bondGram_entry (Tstar : a.Ext → ℝ) {θ : ℝ → a.Param}
       + a.matE v e (θ t v) i c * -(a.matE v e (a.gradNode Tstar (θ t) v) j c)))
       = -((∑ c, a.matE v e (a.gradNode Tstar (θ t) v) i c * a.matE v e (θ t v) j c)
         + ∑ c, a.matE v e (θ t v) i c * a.matE v e (a.gradNode Tstar (θ t) v) j c) := by
+    rw [neg_add, ← Finset.sum_neg_distrib, ← Finset.sum_neg_distrib,
+      ← Finset.sum_add_distrib]
+    exact Finset.sum_congr rfl fun c _ => by ring
+  rw [← hval]
+  exact h1
+
+/-- Time derivative of one bond-Gram entry along gradient flow for an arbitrary output
+loss. This is the generic counterpart of `hasDerivAt_bondGram_entry`. -/
+theorem hasDerivAt_bondGram_entryOf (ell : (a.Ext → ℝ) → ℝ) {θ : ℝ → a.Param}
+    (hflow : a.IsGradFlowOf ell θ) (v : a.V) (e : a.Inc v)
+    (i j : Fin (a.r e.1)) (t : ℝ) :
+    HasDerivAt (fun s => a.bondGram v e (θ s v) i j)
+      (-((∑ c, a.matE v e (a.gradNodeOf ell (θ t) v) i c * a.matE v e (θ t v) j c)
+        + ∑ c, a.matE v e (θ t v) i c * a.matE v e (a.gradNodeOf ell (θ t) v) j c)) t := by
+  have hentry : ∀ (i' : Fin (a.r e.1))
+      (c : ((e' : {e' : a.Inc v // e' ≠ e}) → Fin (a.r e'.1.1)) × Fin (a.n v)),
+      HasDerivAt (fun s => a.matE v e (θ s v) i' c)
+        (-(a.matE v e (a.gradNodeOf ell (θ t) v) i' c)) t := fun i' c =>
+    hflow v ((Equiv.piSplitAt e fun e' => Fin (a.r e'.1)).symm (i', c.1)) c.2 t
+  have heq : (fun s => a.bondGram v e (θ s v) i j)
+      = fun s => ∑ c, a.matE v e (θ s v) i c * a.matE v e (θ s v) j c := by
+    funext s
+    simp [bondGram, Matrix.mul_apply, Matrix.transpose_apply]
+  rw [heq]
+  have h1 := HasDerivAt.fun_sum
+    (fun c (_ : c ∈ Finset.univ) => (hentry i c).mul (hentry j c))
+  have hval : (∑ c, (-(a.matE v e (a.gradNodeOf ell (θ t) v) i c)
+        * a.matE v e (θ t v) j c
+      + a.matE v e (θ t v) i c * -(a.matE v e (a.gradNodeOf ell (θ t) v) j c)))
+      = -((∑ c, a.matE v e (a.gradNodeOf ell (θ t) v) i c * a.matE v e (θ t v) j c)
+        + ∑ c, a.matE v e (θ t v) i c * a.matE v e (a.gradNodeOf ell (θ t) v) j c) := by
     rw [neg_add, ← Finset.sum_neg_distrib, ← Finset.sum_neg_distrib,
       ← Finset.sum_add_distrib]
     exact Finset.sum_congr rfl fun c _ => by ring
@@ -423,11 +559,26 @@ theorem matE_cross_transfer {u w : a.V} (h : a.G.Adj u w) (Tstar : a.Ext → ℝ
   rw [← hu, ht, hw]
   exact Finset.sum_congr rfl fun c _ => mul_comm _ _
 
-/-- **Per-bond conservation law.** Along any gradient flow of the
-TTN squared loss, the bond quantity `Δ_e = matₑ(W_u)matₑ(W_u)ᵀ − matₑ(W_w)matₑ(W_w)ᵀ` is
-a constant of motion, for every internal bond `e = s(u, w)`. Tree instance of Saxe's
-DLN balancedness conservation; the proof uses only the per-bond gauge structure
-(`represented_update_modeMul_transfer`), not acyclicity. -/
+/-- Cross-term transfer for the coordinate gradient of an arbitrary output loss. -/
+theorem matE_cross_transferOf {u w : a.V} (h : a.G.Adj u w)
+    (ell : (a.Ext → ℝ) → ℝ) (θ : a.Param) (i j : Fin (a.r s(u, w))) :
+    ∑ c, a.matE u (adjIncLeft h) (a.gradNodeOf ell θ u) i c
+        * a.matE u (adjIncLeft h) (θ u) j c
+      = ∑ c, a.matE w (adjIncRight h) (a.gradNodeOf ell θ w) j c
+          * a.matE w (adjIncRight h) (θ w) i c := by
+  have hu := a.sum_modeMul_single_pair u (adjIncLeft h) i j (θ u) (a.gradNodeOf ell θ u)
+  have hw := a.sum_modeMul_single_pair w (adjIncRight h) j i (θ w) (a.gradNodeOf ell θ w)
+  have ht := a.gradPair_modeMul_transferOf h ell θ (Matrix.single i j 1)
+  rw [Matrix.transpose_single] at ht
+  refine (Finset.sum_congr rfl fun c _ => mul_comm _ _).trans ?_
+  rw [← hu, ht, hw]
+  exact Finset.sum_congr rfl fun c _ => mul_comm _ _
+
+/-- **Squared-loss per-bond conservation law.** Along any gradient flow of the TTN
+squared loss, the bond quantity
+`Δ_e = matₑ(W_u)matₑ(W_u)ᵀ − matₑ(W_w)matₑ(W_w)ᵀ` is constant for every internal
+bond `e = s(u, w)`. The general `C¹` statement corresponding to Proposition G.12 is
+`bondGramDiff_conserved_of_contDiff`. -/
 theorem bondGramDiff_conserved (Tstar : a.Ext → ℝ) {θ : ℝ → a.Param}
     (hflow : a.IsGradFlow Tstar θ) {u w : a.V} (h : a.G.Adj u w) (t : ℝ) :
     a.bondGramDiff h (θ t) = a.bondGramDiff h (θ 0) := by
@@ -453,6 +604,49 @@ theorem bondGramDiff_conserved (Tstar : a.Ext → ℝ) {θ : ℝ → a.Param}
     exact hsub
   exact is_const_of_deriv_eq_zero (fun s => (hderiv s).differentiableAt)
     (fun s => (hderiv s).deriv) t 0
+
+/-- **Per-bond conservation for an arbitrary output-loss gradient field.** Along a
+trajectory satisfying the entrywise gradient-flow equation for `ell ∘ represented`, every
+bond Gram difference is constant. Differentiability of `ell` is not needed by the
+conservation algebra itself; it is what gives `gradNodeOf` its gradient interpretation via
+`hasDerivAt_composedLoss_line_gradNodeOf`. -/
+theorem bondGramDiff_conservedOf (ell : (a.Ext → ℝ) → ℝ) {θ : ℝ → a.Param}
+    (hflow : a.IsGradFlowOf ell θ) {u w : a.V} (h : a.G.Adj u w) (t : ℝ) :
+    a.bondGramDiff h (θ t) = a.bondGramDiff h (θ 0) := by
+  ext i j
+  have hderiv : ∀ s : ℝ, HasDerivAt (fun s' => a.bondGramDiff h (θ s') i j) 0 s := by
+    intro s
+    have hu := a.hasDerivAt_bondGram_entryOf ell hflow u (adjIncLeft h) i j s
+    have hw := a.hasDerivAt_bondGram_entryOf ell hflow w (adjIncRight h) i j s
+    have hsub := hu.sub hw
+    have hA : (∑ c, a.matE u (adjIncLeft h) (a.gradNodeOf ell (θ s) u) i c
+          * a.matE u (adjIncLeft h) (θ s u) j c)
+        = ∑ c, a.matE w (adjIncRight h) (θ s w) i c
+            * a.matE w (adjIncRight h) (a.gradNodeOf ell (θ s) w) j c :=
+      (a.matE_cross_transferOf h ell (θ s) i j).trans
+        (Finset.sum_congr rfl fun c _ => mul_comm _ _)
+    have hB : (∑ c, a.matE u (adjIncLeft h) (θ s u) i c
+          * a.matE u (adjIncLeft h) (a.gradNodeOf ell (θ s) u) j c)
+        = ∑ c, a.matE w (adjIncRight h) (a.gradNodeOf ell (θ s) w) i c
+            * a.matE w (adjIncRight h) (θ s w) j c :=
+      (Finset.sum_congr rfl fun c _ => mul_comm _ _).trans
+        (a.matE_cross_transferOf h ell (θ s) j i)
+    rw [hA, hB, show ∀ x y : ℝ, -(x + y) - -(y + x) = 0 from fun x y => by ring] at hsub
+    exact hsub
+  exact is_const_of_deriv_eq_zero (fun s => (hderiv s).differentiableAt)
+    (fun s => (hderiv s).deriv) t 0
+
+/-- **Paper correspondence: Proposition G.12, per-bond Gram-difference conservation.**
+For any continuously differentiable loss `ell` of the represented tensor, the bond
+balancedness defect is constant along every certified gradient-flow trajectory of
+`ell ∘ represented`. The `C¹` assumption records the paper's regularity hypothesis and,
+through `hasDerivAt_composedLoss_line_gradNodeOf`, certifies the gradient used by
+`IsGradFlowOf`; the underlying conservation theorem is `bondGramDiff_conservedOf`. -/
+theorem bondGramDiff_conserved_of_contDiff (ell : (a.Ext → ℝ) → ℝ)
+    (_hell : ContDiff ℝ 1 ell) {θ : ℝ → a.Param} (hflow : a.IsGradFlowOf ell θ)
+    {u w : a.V} (h : a.G.Adj u w) (t : ℝ) :
+    a.bondGramDiff h (θ t) = a.bondGramDiff h (θ 0) :=
+  a.bondGramDiff_conservedOf ell hflow h t
 
 /-- **The balanced slice is flow-invariant**: `Δ_e(0) = 0` propagates to all times
 (the tree analogue of the balanced manifold in deep linear networks). -/

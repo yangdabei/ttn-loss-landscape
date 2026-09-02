@@ -8,6 +8,7 @@ import TTN
 -- Important conditional or auxiliary results.
 #print axioms TTN.Arch.exists_escape_path
 #print axioms TTN.Arch.bondGramDiff_conserved
+#print axioms TTN.Arch.bondGramDiff_conserved_of_contDiff
 #print axioms TTN.Arch.critical_halfParam
 #print axioms TTN.Arch.parity_saddle_achievable
 #print axioms TTN.Arch.parity_coefficient_order_bound

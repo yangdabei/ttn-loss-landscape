@@ -1,0 +1,308 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/mathlib-initiative/formalization.yaml/99c678e569c7c4c0772db297c5ddd5e4c9b6322e/schema/formalization.schema.json
+
+version: "v0.4"
+
+project:
+  name: "TTN loss landscapes in Lean"
+  description: >-
+    Lean 4 and Mathlib formalization of the principal loss-landscape results for
+    tree tensor networks accompanying Benign Loss Landscapes Can Coexist with
+    Worst-Case Hardness. The main result proves that, for a realizable target,
+    every parameter point that is both a local minimum of the squared loss and
+    minimum-norm within its fiber is a global minimum with zero loss.
+  authors:
+    - "Yangda Bei"
+  responsible_maintainers:
+    - "Yangda Bei"
+  license: "Apache-2.0"
+
+sources:
+  - title: "Benign Loss Landscapes Can Coexist with Worst-Case Hardness"
+    authors:
+      - "Zach Furman"
+      - "Stephan Wäldchen"
+      - "Liam Hodgkinson"
+    type: "manuscript"
+    location: >-
+      Theorem 4.3, Corollary 4.4, Theorem 5.2, Proposition 5.3, and the
+      supporting Appendix C, E, G, and I results listed in
+      docs/correspondence.md
+    relationship: "formalizes"
+    author_endorsement: "endorsed"
+    note: >-
+      The paper authors checked that the mapped Lean theorem statements
+      faithfully represent the corresponding statements in the manuscript.
+
+related_formalizations: []
+
+status:
+  scope: >-
+    The development formalizes the main minimum-norm and full-Tucker-rank loss
+    landscape theorems, the parity-saddle lower bound, and the supporting
+    realizability, dormant-subspace, compression, descent, factorization, and
+    arbitrary continuously differentiable output-loss conservation results listed in
+    docs/correspondence.md. The
+    escape-path result retains an explicit in-fiber path hypothesis. The
+    computational-hardness and Boolean-expressivity arguments are outside the
+    Lean development.
+  sorry_count: 0
+  sorry_in_definitions: 0
+  axioms:
+    - "propext"
+    - "Classical.choice"
+    - "Quot.sound"
+  main_results:
+    - declaration: "TTN.Arch.minNorm_isLocalMin_isGlobalMin"
+      file: "TTN/Landscape/LocalMin.lean"
+      source_result: "Theorem 4.3"
+      relation: "Exact"
+      comparator_config: "audit/comparator/config.json"
+      sorry_count: 0
+      axioms:
+        - "propext"
+        - "Classical.choice"
+        - "Quot.sound"
+    - declaration: "TTN.Arch.critical_fullRank_isGlobalMin"
+      file: "TTN/Landscape/FullRank.lean"
+      source_result: "Theorem 5.2"
+      relation: "Exact"
+      sorry_count: 0
+      axioms:
+        - "propext"
+        - "Classical.choice"
+        - "Quot.sound"
+    - declaration: "TTN.Arch.parity_saddle_lower_bound"
+      file: "TTN/Dynamics/ParityLowerBound.lean"
+      source_result: "Proposition 5.3"
+      relation: "By specialisation"
+      note: >-
+        Take rho = 1 for the manuscript's existential neighborhood radius.
+      sorry_count: 0
+      axioms:
+        - "propext"
+        - "Classical.choice"
+        - "Quot.sound"
+
+automation:
+  methods:
+    - method: "agent"
+      models:
+        - "Anthropic Claude Fable 5"
+        - "Anthropic Claude Opus 4.8"
+      tool_setup: "Anthropic subscription-based access."
+      prompting_notes: >-
+        Claude Fable 5 was the primary model for the substantive formalization
+        from 29 June through 2 July 2026. Claude Opus 4.8 was used for selected
+        proof obligations. Project-close and repository-reorganization work
+        continued on 3 July 2026.
+    - method: "agent"
+      models:
+        - "OpenAI GPT-5.5"
+      tool_setup: "OpenAI subscription-based access."
+      prompting_notes: >-
+        Used mainly for mathematical audits and proof-strategy review; it also
+        supplied two small Lean proof bodies.
+    - method: "agent"
+      models:
+        - "OpenAI GPT-5.6-Sol"
+      tool_setup: "OpenAI subscription-based access."
+      prompting_notes: >-
+        Used on 1 September 2026 to formalize the universal parity-saddle lower
+        bound corresponding to Lemma I.2 and Proposition 5.3.
+    - method: "manual"
+      tool_setup: >-
+        Human integration of candidate code, repository organization, and
+        statement-level correspondence review.
+  spend_usd: "subscription-based usage"
+  notes: >-
+    Subscription access was used for the Anthropic and OpenAI models. A complete
+    project-level record of token use, wall time, and billed cost was not
+    retained, so no API-equivalent cost is estimated.
+
+fidelity:
+  divergences: >-
+    The main development aggregates the external modes incident to each node;
+    TTN/Landscape/External.lean separately proves the realizability/rank
+    characterization for literal individual external modes, but the full
+    landscape development is not transported to those coordinates. The formal
+    development proves only the leaf instance of the manuscript's general
+    full-environment-rank lemma. Its main proof uses connected-component
+    dormant-direction perturbations rather than the manuscript's iterative
+    stripping narrative, although the stripping
+    construction is also formalized. The compression theorem assumes a nonzero
+    target because bond dimensions are positive naturals; the final main theorem
+    handles the zero target separately. Corollary 4.4 is conditional on the
+    explicit in-fiber path hypothesis hfiber because the relevant semialgebraic
+    geometry and geometric-invariant-theory results are not formalized. The
+    conservation theorem is typed over an Arch, which bundles a tree even though
+    its proof only uses the local two-endpoint bond structure, and the library
+    does not formalize the full route from balancedness to preservation of global
+    minimum norm. Several paper statements are verified by specialising
+    reusable declarations, as recorded in the alignment below. The
+    computational-hardness and Boolean-expressivity arguments are not formalized.
+
+review:
+  status: "author-verified"
+  reviewers:
+    - "Zach Furman"
+    - "Stephan Wäldchen"
+    - "Liam Hodgkinson"
+  notes: >-
+    The paper authors checked the faithfulness of the mapped Lean theorem
+    statements to the corresponding manuscript statements. Lean kernel axiom
+    output for the audited results is recorded by AxiomAudit.lean.
+
+alignment:
+  index: "docs/correspondence.md"
+  relation_vocabulary:
+    Exact: "The same statement modulo notation."
+    Equivalent: "A logically equivalent reformulation."
+    "By specialisation": "The manuscript statement follows by specialising a reusable Lean declaration."
+    Conditional: "The Lean statement adds a hypothesis."
+    Partial: "Only part of the manuscript result is formalized."
+  statements:
+    - source: "Definition 4.1 — Minimum-norm parameter"
+      lean: "TTN.Arch.MinNorm"
+      module: "TTN/Contraction.lean"
+      status: "proved"
+      relation: "Exact"
+    - source: "Proposition C.1 — Realizability characterization"
+      lean:
+        - "TTN.Arch.ExtStruct.realizableLit_iff_rank_le"
+        - "TTN.Arch.realizable_iff_rank_le"
+      module:
+        - "TTN/Landscape/External.lean"
+        - "TTN/Landscape/RealizabilityConverse.lean"
+      status: "partially formalized"
+      relation: "Partial"
+      note: >-
+        The rank characterization is exact; the prescribed-subspace clause is
+        not formalized as a theorem.
+    - source: "Definition 5.1 — Full Tucker rank"
+      lean: "TTN.Arch.FullTuckerRank"
+      module: "TTN/Landscape/FullRank.lean"
+      status: "proved"
+      relation: "Exact"
+    - source: "Theorem 5.2 — Full-rank critical points are global"
+      lean:
+        - "TTN.Arch.critical_fullRank_represented_eq"
+        - "TTN.Arch.critical_fullRank_isGlobalMin"
+        - "TTN.Arch.not_fullRank_of_critical_of_not_isGlobalMin"
+      module: "TTN/Landscape/FullRank.lean"
+      status: "proved"
+      relation: "Exact"
+      note: >-
+        The manuscript's standing realizability assumption is explicit. The
+        last declaration is the equivalent contrapositive.
+    - source: "Definition E.1 — Dormant subspace"
+      lean: "TTN.Arch.dormant"
+      module: "TTN/Landscape/Dormant.lean"
+      status: "proved"
+      relation: "Exact"
+    - source: "Proposition E.2 — Minimum-norm kernel equalities and rank count"
+      lean:
+        - "TTN.Arch.minNorm_ker_Hfun_eq_dormant"
+        - "TTN.Arch.minNorm_ker_Ffun_eq_dormant"
+        - "TTN.Arch.minNorm_rank_add_finrank_dormant"
+        - "TTN.Arch.minNorm_ker_matE_left_eq_dormant"
+        - "TTN.Arch.minNorm_ker_matE_right_eq_dormant"
+      module: "TTN/Landscape/Dormant.lean"
+      status: "proved"
+      relation: "Exact"
+      note: "Split into a reusable theorem family."
+    - source: "Proposition E.3 — Active directions are target-aligned"
+      lean: "TTN.Arch.minNorm_critical_ker_crossGram_le_dormant"
+      module: "TTN/Landscape/Dormant.lean"
+      status: "proved"
+      relation: "By specialisation"
+      note: "Choose the target factorization induced by the manuscript's target realization."
+    - source: "Corollary E.4 — Model cut rank is bounded by target cut rank"
+      lean: "TTN.Arch.minNorm_critical_rank_le_target"
+      module: "TTN/Landscape/Dormant.lean"
+      status: "proved"
+      relation: "By specialisation"
+      note: "Impose the manuscript's standing target-realizability assumption."
+    - source: "Corollary E.5 — Full model cut rank makes the cross-Gram invertible"
+      lean: "TTN.Arch.minNorm_critical_isUnit_crossGram"
+      module: "TTN/Landscape/Dormant.lean"
+      status: "proved"
+      relation: "By specialisation"
+      note: >-
+        Choose the factorization induced by the target realization; IsUnit
+        expresses invertibility.
+    - source: "Lemma E.6 — Reduction to target cut ranks"
+      lean: "TTN.Arch.exists_compress_reduction and transfer lemmas"
+      module: "TTN/Landscape/Compress.lean"
+      status: "proved"
+      relation: "Exact"
+      note: >-
+        Both statements assume a nonzero target; the final main theorem handles
+        the zero target separately.
+    - source: "Lemma E.8 — Mixed terms vanish under a coordinated core perturbation"
+      lean: "TTN.Arch.represented_add_corePerturb"
+      module: "TTN/Landscape/CoreDescent.lean"
+      status: "proved"
+      relation: "By specialisation"
+      note: "The manuscript statement is the component-supported instance."
+    - source: "Lemma E.9 — Strict local descent"
+      lean: "TTN.Arch.exists_loss_lt_of_pow_move"
+      module: "TTN/Landscape/CoreDescent.lean"
+      status: "proved"
+      relation: "By specialisation"
+      note: "The manuscript statement is the pure-power-move instance."
+    - source: "Theorem 4.3 — Minimum-norm local minima are global"
+      lean:
+        - "TTN.Arch.minNorm_isLocalMin_represented_eq"
+        - "TTN.Arch.minNorm_isLocalMin_isGlobalMin"
+      module: "TTN/Landscape/LocalMin.lean"
+      status: "proved"
+      relation: "Exact"
+      note: "The manuscript's standing realizability assumption is explicit."
+    - source: "Corollary 4.4 — Escape path from a non-solution"
+      lean: "TTN.Arch.exists_escape_path"
+      module: "TTN/Landscape/Escape.lean"
+      status: "proved with an added hypothesis"
+      relation: "Conditional"
+      note: "Assumes the explicit in-fiber path hypothesis hfiber."
+    - source: "Definition G.1 — Minimal two-factor factorization"
+      lean: "TTN.MinFac.IsMinimalFac"
+      module: "TTN/Landscape/MinFac.lean"
+      status: "proved"
+      relation: "Exact"
+    - source: "Lemma G.2 — Minimal two-factor factorizations"
+      lean:
+        - "TTN.MinFac.isMinimalFac_iff_isCompl"
+        - "TTN.MinFac.exists_isMinimalFac_mem_closure_orbit"
+        - "TTN.MinFac.isMinimalFac_orbit"
+      module: "TTN/Landscape/MinFac.lean"
+      status: "proved"
+      relation: "Exact"
+      note: "Split across the displayed declarations."
+    - source: "Proposition G.12 — Per-bond Gram-difference conservation"
+      lean: "TTN.Arch.bondGramDiff_conserved_of_contDiff"
+      module: "TTN/Dynamics/Conservation.lean"
+      status: "proved"
+      relation: "Exact"
+      note: >-
+        Proved for an arbitrary continuously differentiable loss of the
+        represented tensor; the squared-loss theorem remains available.
+    - source: "Lemma I.2 — Order bound on the parity coefficient"
+      lean: "TTN.Arch.parity_coefficient_order_bound"
+      module: "TTN/Dynamics/ParityLowerBound.lean"
+      status: "proved"
+      relation: "By specialisation"
+      note: "Take rho = 1 for the manuscript's existential radius."
+    - source: "Proposition 5.3 — Parity saddle and universal lower bound"
+      lean:
+        - "TTN.Arch.critical_halfParam"
+        - "TTN.Arch.parity_saddle_achievable"
+        - "TTN.Arch.parity_saddle_lower_bound"
+      module:
+        - "TTN/Dynamics/Parity.lean"
+        - "TTN/Dynamics/ParityLowerBound.lean"
+      status: "proved"
+      relation: "By specialisation"
+      note: >-
+        Combine the linked declarations and take rho = 1 in the lower bound.
+
+acknowledgements: "Built with Lean 4 and Mathlib."

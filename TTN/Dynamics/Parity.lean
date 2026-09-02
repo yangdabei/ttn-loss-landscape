@@ -251,7 +251,9 @@ private theorem sum_ext_prod' {a : Arch} (F : (v : a.V) → Fin (a.n v) → ℝ)
   rw [Finset.prod_univ_sum, Fintype.piFinset_univ]
   rfl
 
-/-- **The halfway point is critical**: every directional derivative pairs
+/-- **Paper correspondence (part of a stronger split formalization): Proposition 5.3,
+criticality of the parity halfway point.**
+Every directional derivative pairs
 `u₋^{⊗(n+1)}` against a contraction that is constant-`½` on some non-updated LEAF's
 external legs, and `∑_{j : Fin 4} (−1)^{bitWeight j} = 0` kills it. -/
 theorem critical_halfParam (k : ℕ) (hk : 2 ≤ k) :
@@ -322,8 +324,10 @@ theorem critical_halfParam (k : ℕ) (hk : 2 ≤ k) :
 
 /-! ### Explicit descent from the halfway point -/
 
-/-- An explicit coordinated perturbation gives strict loss descent from the
-halfway point. Along this chosen line, the loss increment is asymptotic to
+/-- **Paper correspondence (part of a stronger split formalization): Proposition 5.3,
+explicit saddle/descent witness.**
+An explicit coordinated perturbation gives strict loss descent from the halfway point. Along this
+chosen line, the loss increment is asymptotic to
 `c * t ^ (n - 1)` for some `c < 0`, where `n = 2^k`. This certifies that the
 critical halfway point is not a local minimum. The statement concerns this
 particular line; it does not assert that `n - 1` is the smallest possible

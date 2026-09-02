@@ -1,0 +1,11 @@
+# Comparator's trusted statement, import boundary, configuration, and runner.
+# Protection takes effect when the repository requires Code Owner review.
+/audit/comparator/Challenge.lean @yangdabei
+/audit/comparator/config.json @yangdabei
+/TTN/Arch.lean @yangdabei
+/TTN/Contraction.lean @yangdabei
+/lakefile.toml @yangdabei
+/lake-manifest.json @yangdabei
+/lean-toolchain @yangdabei
+/.github/workflows/comparator.yml @yangdabei
+/.github/CODEOWNERS @yangdabei
