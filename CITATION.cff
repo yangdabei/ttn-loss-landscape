@@ -1,0 +1,18 @@
+cff-version: 1.2.0
+message: >-
+  If you use this formalization, please cite this software repository and the
+  associated paper, Benign Loss Landscapes Can Coexist with Worst-Case Hardness.
+title: "TTN loss landscapes in Lean"
+type: software
+authors:
+  - family-names: Bei
+    given-names: Yangda
+license: Apache-2.0
+repository-code: "https://github.com/yangdabei/ttn-loss-landscape"
+version: 0.1.0
+keywords:
+  - Lean
+  - theorem proving
+  - tree tensor networks
+  - loss landscapes
+  - machine learning theory

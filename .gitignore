@@ -1,0 +1,22 @@
+# Lean and Lake build products
+/.lake/
+/lake-packages/
+*.olean
+*.ilean
+*.olean.tmp
+
+# Local editor and operating-system files
+.DS_Store
+.vscode/
+.idea/
+*~
+
+# Local environments and secrets
+.env
+.env.*
+!.env.example
+.venv/
+__pycache__/
+.claude/
+.codex/
+.mcp.json
