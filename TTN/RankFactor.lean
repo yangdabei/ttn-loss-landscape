@@ -22,7 +22,7 @@ variable {𝕜 : Type*} [Field 𝕜] {m n : Type*} [Fintype m] [Fintype n]
 omit [Fintype m] in
 /-- **Kernel containment reverses the rank inequality** (rank–nullity): if every vector
 annihilated by `M` is annihilated by `N`, then `rank N ≤ rank M`. -/
-theorem rank_le_rank_of_ker_le {p : Type*} [Fintype p] (M : Matrix m n 𝕜) (N : Matrix p n 𝕜)
+theorem rank_le_rank_of_ker_le {p : Type*} (M : Matrix m n 𝕜) (N : Matrix p n 𝕜)
     (h : LinearMap.ker M.mulVecLin ≤ LinearMap.ker N.mulVecLin) : N.rank ≤ M.rank := by
   have hM := LinearMap.finrank_range_add_finrank_ker M.mulVecLin
   have hN := LinearMap.finrank_range_add_finrank_ker N.mulVecLin
@@ -45,17 +45,19 @@ theorem mulVec_injective_of_rank_eq_card (M : Matrix m n 𝕜) (h : M.rank = Fin
   intro x y hxy
   exact hinj (by simpa [Matrix.mulVecLin_apply] using hxy)
 
+omit [Fintype m] in
 /-- A matrix of rank `≤ k` over a field factors as `A * Bᵀ` through an inner index `Fin k`,
 **minimally**: in addition to `M = A Bᵀ`,
 * (i) `B`'s columns beyond `M.rank` vanish, and
 * (ii) `A`'s columns on the support `{l | (l : ℕ) < M.rank}` are linearly independent.
-These two extra facts are exactly what a rank-preserving leaf-removal reduction needs
-(`TTN/Landscape/RealizabilityConverse.lean`); the unfolded eliminator form of (ii) that the reduction
-consumes is `eq_zero_of_sum_smul_col_eq_zero`. -/
-theorem exists_factor_of_rank_le [DecidableEq m] (M : Matrix m n 𝕜) {k : ℕ} (hk : M.rank ≤ k) :
+These facts are what the rank-preserving leaf-removal reduction in
+`TTN/Landscape/RealizabilityConverse.lean` needs. Its unfolded eliminator for
+(ii) is `eq_zero_of_sum_smul_col_eq_zero`. -/
+theorem exists_factor_of_rank_le [Finite m] (M : Matrix m n 𝕜) {k : ℕ} (hk : M.rank ≤ k) :
     ∃ (A : Matrix m (Fin k) 𝕜) (B : Matrix n (Fin k) 𝕜), M = A * Bᵀ ∧
       (∀ (l : Fin k), M.rank ≤ (l : ℕ) → ∀ j, B j l = 0) ∧
       LinearIndependent 𝕜 (fun l : Fin M.rank => A.col (Fin.castLE hk l)) := by
+  letI := Fintype.ofFinite m
   classical
   set s : Submodule 𝕜 (m → 𝕜) := span 𝕜 (Set.range M.col) with hs
   have hdk : Module.finrank 𝕜 s ≤ k := by
@@ -67,7 +69,7 @@ theorem exists_factor_of_rank_le [DecidableEq m] (M : Matrix m n 𝕜) {k : ℕ}
   let A' : Fin k → (m → 𝕜) := fun i => if h : (i : ℕ) < d then b ⟨i, h⟩ else 0
   have hA'0 : ∀ l : Fin k, ¬ (l : ℕ) < d → A' l = 0 := by
     intro l hl
-    show (if h : (↑l : ℕ) < d then b ⟨↑l, h⟩ else 0) = 0
+    change (if h : (↑l : ℕ) < d then b ⟨↑l, h⟩ else 0) = 0
     rw [dif_neg hl]
   have hspan_b : span 𝕜 (Set.range b) = s := by
     have hbc : Set.range b = s.subtype '' (Set.range Bs) := by rw [← Set.range_comp]; rfl
@@ -75,7 +77,7 @@ theorem exists_factor_of_rank_le [DecidableEq m] (M : Matrix m n 𝕜) {k : ℕ}
   have hsub : Set.range b ⊆ Set.range A' := by
     rintro _ ⟨i, rfl⟩
     refine ⟨⟨↑i, i.2.trans_le hdk⟩, ?_⟩
-    show (if h : (↑i : ℕ) < d then b ⟨↑i, h⟩ else 0) = b i
+    change (if h : (↑i : ℕ) < d then b ⟨↑i, h⟩ else 0) = b i
     rw [dif_pos i.2]
   have hsle : s ≤ span 𝕜 (Set.range A') := by rw [← hspan_b]; exact span_mono hsub
   have hcol : ∀ j, M.col j ∈ span 𝕜 (Set.range A') := by
@@ -108,9 +110,9 @@ theorem exists_factor_of_rank_le [DecidableEq m] (M : Matrix m n 𝕜) {k : ℕ}
         = b ∘ (fun l : Fin M.rank => (⟨l.1, hdM ▸ l.2⟩ : Fin d)) := by
       funext l
       funext i
-      show A' (Fin.castLE hk l) i = b ⟨l.1, hdM ▸ l.2⟩ i
+      change A' (Fin.castLE hk l) i = b ⟨l.1, hdM ▸ l.2⟩ i
       have hlt : ((Fin.castLE hk l : Fin k) : ℕ) < d := hdM ▸ l.2
-      show (if h : ((Fin.castLE hk l : Fin k) : ℕ) < d then b ⟨_, h⟩ else 0) i
+      change (if h : ((Fin.castLE hk l : Fin k) : ℕ) < d then b ⟨_, h⟩ else 0) i
         = b ⟨l.1, hdM ▸ l.2⟩ i
       rw [dif_pos hlt]
       rfl

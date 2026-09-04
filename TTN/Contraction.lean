@@ -55,8 +55,8 @@ def paramNormSq (θ : a.Param) : ℝ := ∑ v : a.V, a.nodeNormSq θ v
 (`T*` lies in the image of the TTN parameterization). -/
 def Realizable (Tstar : a.Ext → ℝ) : Prop := ∃ θ : a.Param, a.represented θ = Tstar
 
-/-- **Paper correspondence: Definition 4.1, minimum-norm point.** `θ` has minimum parameter norm among
-all parameters producing the same represented tensor. -/
+/-- **Paper correspondence: Definition 4.1, minimum-norm point.**
+`θ` has minimum parameter norm among all parameters producing the same represented tensor. -/
 def MinNorm (θ : a.Param) : Prop :=
   ∀ θ' : a.Param, a.represented θ' = a.represented θ → a.paramNormSq θ ≤ a.paramNormSq θ'
 

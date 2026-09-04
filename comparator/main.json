@@ -1,0 +1,15 @@
+{
+  "challenge_module": "Challenge",
+  "solution_module": "TTN",
+  "theorem_names": [
+    "TTN.Arch.critical_fullRank_isGlobalMin",
+    "TTN.Arch.minNorm_isLocalMin_isGlobalMin",
+    "TTN.Arch.parity_saddle_lower_bound"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Quot.sound",
+    "Classical.choice"
+  ],
+  "enable_nanoda": true
+}

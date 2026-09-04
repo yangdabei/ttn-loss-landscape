@@ -1,25 +1,55 @@
 name = "TTN"
 version = "0.1.0"
-keywords = ["math"]
+keywords = ["math", "tensor-networks", "optimization", "machine-learning-theory"]
 defaultTargets = ["TTN"]
+fixedToolchain = true
+lintDriver = "batteries/runLinter"
+lintDriverArgs = ["--trace", "--no-build", "TTN"]
 
 [leanOptions]
+autoImplicit = false
 pp.unicode.fun = true # pretty-prints `fun a ↦ b`
+linter.mathlibStandardSet = true
+# The existing proof corpus predates these source-style and signature-shape
+# linters. Keep the substantive standard lints enabled without mechanically
+# rewriting hundreds of stable proof lines solely for presentation.
+linter.style.longLine = false
+linter.style.show = false
+linter.style.multiGoal = false
+linter.style.header = false
+linter.flexible = false
+linter.unusedFintypeInType = false
+linter.unusedDecidableInType = false
+linter.unusedSectionVars = false
 
 [[require]]
 name = "mathlib"
 scope = "leanprover-community"
 rev = "v4.31.0"
 
+# Verification executable; built only when requested explicitly.
+[[require]]
+name = "Comparator"
+git = "https://github.com/leanprover/comparator.git"
+rev = "fd2e25de155523dbce1f35d410511f9f63998461"
+
+# Pin the exporter directly as well as through Comparator's lock file.
+[[require]]
+name = "lean4export"
+scope = "leanprover"
+git = "https://github.com/leanprover/lean4export"
+rev = "8554815c2dc6b7abe99ec1f08849c9759ba77947"
+
 [[lean_lib]]
 name = "TTN"
 
-# Comparator certificate modules. These are deliberately excluded from
-# `defaultTargets`; Comparator builds them separately under Landrun.
+[lean_lib.leanOptions]
+warningAsError = true
+
+# Comparator specification only: never imported by the proof or built by default.
+# Its intentional theorem placeholders are not part of the production quality gate.
 [[lean_lib]]
 name = "Challenge"
-srcDir = "audit/comparator"
 
-[[lean_lib]]
-name = "Solution"
-srcDir = "audit/comparator"
+[lean_lib.leanOptions]
+warningAsError = false

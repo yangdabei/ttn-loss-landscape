@@ -735,7 +735,7 @@ edge. -/
 theorem existsUnique_not_side (S : Finset a.V)
     (oP oQ : {E : a.G.edgeSet // a.EdgeTouches S E ∧ ¬ a.EdgeInside S E} → a.V)
     (oAdj : ∀ f, a.G.Adj (oP f) (oQ f)) (oEdge : ∀ f, s(oP f, oQ f) = f.1.1)
-    (oPS : ∀ f, oP f ∈ S) (oQS : ∀ f, oQ f ∉ S)
+    (oPS : ∀ f, oP f ∈ S) (_oQS : ∀ f, oQ f ∉ S)
     (oSide : ∀ f (z : a.V), ¬ a.Side (oAdj f) z → z ∉ S)
     (hS : S.Nonempty) {y : a.V} (hy : y ∉ S) :
     ∃! f, ¬ a.Side (oAdj f) y := by
@@ -1344,6 +1344,7 @@ theorem sum_bdry_reindex (S : Finset a.V)
       a.Side hstar (oP f)) (fun f => Fin (a.r f.1.1))).symm G
 
 set_option maxHeartbeats 1600000 in
+-- The boundary-bond reindexing requires a larger elaboration budget.
 /-- **Reindex + recombine** the side-split double sum back to the boundary-bond sum: the
 row/column factored form reassembles the master-Fubini `∑ β` form of the recombined point. -/
 theorem reindex_recombine (S : Finset a.V)
@@ -1737,6 +1738,7 @@ theorem rank_reshapeSplit_SCore_le_envPaired {Tstar : a.Ext → ℝ} {θ θs : a
   rw [hgoalrank]
 
 set_option maxHeartbeats 800000 in
+-- The final environment-rank assembly requires a larger elaboration budget.
 /-- At a minimum-norm critical point of a realizable target with full
 target rank everywhere, given the deficient component `(S, K)` with a deficient inside edge
 `e* = s(xs, ys)`, the compressed residual does not vanish identically — some indicator

@@ -52,7 +52,7 @@ theorem minNorm_isLocalMin_represented_eq {Tstar : a.Ext → ℝ} (hreal : a.Rea
       have htop : a.dormant h θ = ⊤ := by
         rw [← hker]
         ext d
-        simp [Matrix.zero_mulVec]
+        simp
       have hcount := a.minNorm_rank_add_finrank_dormant h hmn
       rw [htop, finrank_top] at hcount
       have hpi : Module.finrank ℝ (Fin (a.r s(u, w)) → ℝ) = a.r s(u, w) := by simp

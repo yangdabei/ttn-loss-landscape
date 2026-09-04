@@ -1592,8 +1592,7 @@ theorem exists_gauge {v u : a.V} (hl : a.IsLeafWith v u) {Tstar : a.Ext → ℝ}
   exact ⟨a.gaugeLeaf hl M θ, a.gaugeLeaf_represented hl hMdet θ,
     a.gaugeLeaf_critical hl hMdet hcrit, a.gaugeLeaf_fullRank hl hMdet hftr,
     by rw [a.Wleaf_gaugeLeaf hl M θ]; exact hMorth⟩
-
-
+/-- At a leaf cut, the row-index type is equivalent to the leaf's external index. -/
 noncomputable def rowLeafEquiv {v u : a.V} (hl : a.IsLeafWith v u) : a.Row hl.1 ≃ Fin (a.n v) where
   toFun row := row ⟨v, (a.side_leaf hl v).mpr rfl⟩
   invFun := a.rowOf hl

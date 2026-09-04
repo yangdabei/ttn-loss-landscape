@@ -16,3 +16,13 @@ keywords:
   - tree tensor networks
   - loss landscapes
   - machine learning theory
+preferred-citation:
+  type: article
+  title: "Benign Loss Landscapes Can Coexist with Worst-Case Hardness"
+  authors:
+    - family-names: Furman
+      given-names: Zach
+    - family-names: Wäldchen
+      given-names: Stephan
+    - family-names: Hodgkinson
+      given-names: Liam

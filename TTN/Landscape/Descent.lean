@@ -48,11 +48,11 @@ theorem exists_boundary_adj {V : Type*} [Fintype V] [DecidableEq V] {G : SimpleG
     ∃ p q, p ∈ S ∧ q ∉ S ∧ G.Adj p q := by
   classical
   by_contra hcon
-  push_neg at hcon
+  push Not at hcon
   obtain ⟨p₀, hp₀⟩ := hS
   obtain ⟨q₀, hq₀⟩ : ∃ q, q ∉ S := by
     by_contra hall
-    push_neg at hall
+    push Not at hall
     exact hSc (Finset.eq_univ_iff_forall.mpr hall)
   obtain ⟨W⟩ := hconn.preconnected p₀ q₀
   have hclosed : ∀ {x y : V}, G.Walk x y → x ∈ S → y ∈ S := by
@@ -238,7 +238,7 @@ theorem represented_add_dormant_perturb (θ : a.Param)
             t * a.dormantPerturb η uvec v (Bond.restrict b v) (x v)) = 0 := by
     intro S _ hSnot
     rw [Finset.mem_insert, Finset.mem_singleton] at hSnot
-    push_neg at hSnot
+    push Not at hSnot
     obtain ⟨hSuniv, hSne⟩ := hSnot
     obtain ⟨y, z, hyS, hzS, hyz⟩ := exists_boundary_adj a.hT.connected S hSne hSuniv
     have hzSd : z ∈ Finset.univ \ S := Finset.mem_sdiff.mpr ⟨Finset.mem_univ z, hzS⟩

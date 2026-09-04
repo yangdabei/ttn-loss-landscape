@@ -847,8 +847,7 @@ theorem critical_bond_identity {Tstar : a.Ext → ℝ} {θ : a.Param} (hcrit : a
       intro p q
       rw [hP]
       simp only [Matrix.mul_apply, Matrix.transpose_apply, Finset.sum_mul]
-      try rw [Finset.sum_comm]
-      try exact Finset.sum_congr rfl fun col _ => Finset.sum_congr rfl fun row _ => by ring
+      rw [Finset.sum_comm]
     rw [Finset.sum_congr rfl
         (fun p _ => Finset.sum_congr rfl (fun q _ => hPpq p q))] at hc
     exact hc

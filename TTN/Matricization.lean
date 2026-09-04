@@ -33,6 +33,7 @@ variable (a : Arch)
 /-- The **cut bipartition**: nodes reachable from `u` after deleting the internal edge
 `s(u, w)` from the tree. Since the edge is a bridge (tree ⇒ every edge is a bridge),
 `u ∈ Side` and `w ∉ Side`, and this is one of the two components of the cut. -/
+@[nolint unusedArguments]
 def Side {u w : a.V} (_h : a.G.Adj u w) : a.V → Prop :=
   fun x => (a.G.deleteEdges {s(u, w)}).Reachable u x
 
@@ -74,7 +75,7 @@ theorem side_symm_iff_not_side {u w : a.V} (h : a.G.Adj u w) (z : a.V) :
   have hbridge : ¬ (a.G.deleteEdges {s(u, w)}).Reachable u w :=
     SimpleGraph.isAcyclic_iff_forall_adj_isBridge.mp a.hT.isAcyclic h
   have hsymm : a.Side h.symm z ↔ (a.G.deleteEdges {s(u, w)}).Reachable w z := by
-    show (a.G.deleteEdges {s(w, u)}).Reachable w z ↔ _
+    change (a.G.deleteEdges {s(w, u)}).Reachable w z ↔ _
     rw [show a.G.deleteEdges {s(w, u)} = a.G.deleteEdges {s(u, w)} by rw [Sym2.eq_swap]]
   have step : ∀ {s t : a.V}, a.G.Adj s t →
       ((a.G.deleteEdges {s(u, w)}).Reachable u s ∨ (a.G.deleteEdges {s(u, w)}).Reachable w s) →
@@ -187,7 +188,7 @@ def bondEquiv {u w : a.V} (h : a.G.Adj u w) :
   right_inv := by
     rintro ⟨k, bs, bc⟩
     refine Prod.ext ?_ (Prod.ext ?_ ?_)
-    · show a.bondInvFun h (k, bs, bc) (a.cutEdge h) = k
+    · change a.bondInvFun h (k, bs, bc) (a.cutEdge h) = k
       simp [bondInvFun]
     · funext e
       obtain ⟨e, hne, hs⟩ := e
@@ -271,8 +272,8 @@ theorem prod_split {u w : a.V} (h : a.G.Adj u w) (θ : a.Param)
           θ v.1 (Bond.restrict (a.bondInvFun h (k, bs, a.colDefault h)) v.1) (row v))
         * (∏ v : {x // ¬ a.Side h x},
           θ v.1 (Bond.restrict (a.bondInvFun h (k, a.sideDefault h, bc)) v.1) (col v)) := by
-  rw [← Fintype.prod_subtype_mul_prod_subtype (a.Side h)
-    (fun v => θ v (Bond.restrict (a.bondInvFun h (k, bs, bc)) v) ((a.extSplit h).symm (row, col) v))]
+  rw [← Fintype.prod_subtype_mul_prod_subtype (a.Side h) (fun v =>
+    θ v (Bond.restrict (a.bondInvFun h (k, bs, bc)) v) ((a.extSplit h).symm (row, col) v))]
   congr 1
   · apply Finset.prod_congr rfl
     intro v _

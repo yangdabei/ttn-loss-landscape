@@ -15,11 +15,6 @@ namespace TTN
 
 namespace Arch
 
-/-- Euclidean distance between two TTN parameter points, written using the
-sum-of-squares parameter norm already used by `MinNorm`. -/
-noncomputable def paramDist (a : Arch) (θ θ' : a.Param) : ℝ :=
-  Real.sqrt (a.paramNormSq (fun v bi xv => θ v bi xv - θ' v bi xv))
-
 theorem paramDist_nonneg (a : Arch) (θ θ' : a.Param) :
     0 ≤ a.paramDist θ θ' :=
   Real.sqrt_nonneg _

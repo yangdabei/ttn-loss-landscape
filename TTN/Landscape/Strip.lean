@@ -544,7 +544,7 @@ theorem rowExtract_rowPack (h : a.G.Adj u w) (row : a.Row h) (j : Fin (a.r s(u, 
     exact congrArg (fun z : {x : a.V // a.Side h x} => (row z).val)
       (Subtype.ext hyu.symm : (⟨u, a.side_left h⟩ : {x : a.V // a.Side h x}) = y)
   · simp only [rowExtract, dif_neg hyu, a.rowPack_apply_ne h row j ⟨y.1, y.2⟩ hyu,
-      finCongr_apply, Fin.cast_cast, Fin.cast_eq_self, Fin.val_cast]
+      finCongr_apply, Fin.cast_cast, Fin.cast_eq_self]
 
 theorem jExtractS_rowPack (h : a.G.Adj u w) (row : a.Row h) (j : Fin (a.r s(u, w))) :
     a.jExtractS h (a.rowPack h row j) = j := by
@@ -563,7 +563,7 @@ theorem rowPack_extract (h : a.G.Adj u w) (xr : (a.sideArch h).Ext) :
     have hfst : a.rowExtract h xr ⟨u, a.side_left h⟩
         = (finProdFinEquiv.symm
             (finCongr (a.sideArch_n_eq_u h (uSide h) rfl) (xr (uSide h)))).1 := by
-      simp only [rowExtract, dif_pos rfl]
+      simp only [rowExtract]
       rfl
     rw [hfst, show a.jExtractS h xr = (finProdFinEquiv.symm
         (finCongr (a.sideArch_n_eq_u h (uSide h) rfl) (xr (uSide h)))).2 from rfl,
@@ -575,7 +575,7 @@ theorem rowPack_extract (h : a.G.Adj u w) (xr : (a.sideArch h).Ext) :
       simp only [rowExtract, dif_neg hyu]
     rw [hre]
     apply Fin.ext
-    simp only [finCongr_apply, Fin.cast_cast, Fin.cast_eq_self, Fin.val_cast]
+    simp only [finCongr_apply, Fin.cast_cast, Fin.val_cast]
     rfl
 
 /-! ### The pulled-back cut factors and the loss decomposition -/
@@ -805,7 +805,7 @@ theorem continuous_pullParam (h : a.G.Adj u w) (θ : a.Param)
       ∑ k, Mᵀ ((hvu ▸ bi) (adjIncLeft h)) k
         * a.unfoldU h φ (Function.update (hvu ▸ bi) (adjIncLeft h) k)
             (finCongr (congrArg a.n hvu) xv)
-    apply continuous_finset_sum
+    apply continuous_finsetSum
     intro k _
     refine continuous_const.mul ?_
     show Continuous fun φ : (a.sideArch h).Param =>

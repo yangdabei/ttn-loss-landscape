@@ -287,6 +287,7 @@ theorem sum_ite_pin {B : Type*} [Fintype B] (b0 : B) (Q : B → ℝ) :
   rw [Finset.sum_ite_eq' Finset.univ b0 Q, if_pos (Finset.mem_univ b0)]
 
 set_option maxHeartbeats 400000 in
+-- The indicator expansion needs more than the default elaboration budget.
 /-- **The key evaluation (indicator choice)**: with unit dormant `η` on the inside edges
 `K` (and `K` = exactly the inside edges), the leading descent term at the indicator tensors
 is the pinned joint environment. -/

@@ -6,7 +6,9 @@ on:
     branches: [main]
     paths:
       - 'TTN/**'
-      - 'audit/comparator/**'
+      - 'TTN.lean'
+      - 'Challenge.lean'
+      - 'comparator/**'
       - 'lakefile.toml'
       - 'lake-manifest.json'
       - 'lean-toolchain'
@@ -15,7 +17,9 @@ on:
   pull_request:
     paths:
       - 'TTN/**'
-      - 'audit/comparator/**'
+      - 'TTN.lean'
+      - 'Challenge.lean'
+      - 'comparator/**'
       - 'lakefile.toml'
       - 'lake-manifest.json'
       - 'lean-toolchain'
@@ -30,21 +34,20 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  theorem-4-3:
-    name: Theorem 4.3 (Landrun + Lean kernel)
+  main-results:
+    name: Main results (Landrun + Lean kernel + Nanoda)
     runs-on: ubuntu-24.04
     timeout-minutes: 120
     env:
-      COMPARATOR_REV: fd2e25de155523dbce1f35d410511f9f63998461
-      LEAN4EXPORT_REV: 8554815c2dc6b7abe99ec1f08849c9759ba77947
       LANDRUN_REV: 5ed4a3db3a4ad930d577215c6b9abaa19df7f99f
+      NANODA_REV: 05055695879dfebb6628a67da88ceca6cd6b0421
+      RUST_TOOLCHAIN: 1.89.0
     defaults:
       run:
         shell: bash
 
     steps:
       - name: Free runner disk space
-        # jlumbroso/free-disk-space v1.3.1, pinned as in leanprover/lean-eval.
         uses: jlumbroso/free-disk-space@54081f138730dfa15788a46383842cd2f914a1be
         with:
           tool-cache: false
@@ -56,13 +59,11 @@ jobs:
           swap-storage: true
 
       - name: Check out the trusted certificate and solution
-        # actions/checkout v7.0.1, pinned as in leanprover/lean-eval.
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           persist-credentials: false
 
       - name: Install the pinned Lean toolchain
-        # leanprover/lean-action v1.5.0. Building is deliberately deferred to Comparator.
         uses: leanprover/lean-action@38fbc41a8c28c4cbaec22d7f7de508ec2e7c0dd9
         with:
           auto-config: false
@@ -73,58 +74,53 @@ jobs:
           use-github-cache: false
 
       - name: Install the pinned Go toolchain
-        # actions/setup-go v7.0.0, pinned as in leanprover/lean-eval.
         uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e
         with:
           go-version: '1.25.12'
           cache: false
 
-      - name: Install pinned Landrun
+      - name: Install the pinned Rust toolchain
+        run: rustup toolchain install "$RUST_TOOLCHAIN" --profile minimal
+
+      - name: Initialize without compiling production modules
         run: |
           set -euo pipefail
-          go install "github.com/zouuup/landrun/cmd/landrun@${LANDRUN_REV}"
-          landrun_bin="$(go env GOPATH)/bin/landrun"
-          test -x "$landrun_bin"
-          echo "LANDRUN_BIN=$landrun_bin" >> "$GITHUB_ENV"
-
-      - name: Build pinned Comparator and matching lean4export
-        run: |
-          set -euo pipefail
-          mkdir -p .ci
-          git clone https://github.com/leanprover/comparator.git .ci/comparator
-          git -C .ci/comparator checkout --detach "$COMPARATOR_REV"
-          test "$(git -C .ci/comparator rev-parse HEAD)" = "$COMPARATOR_REV"
-          cmp --silent lean-toolchain .ci/comparator/lean-toolchain
-
-          (
-            cd .ci/comparator
-            lake build comparator lean4export
-          )
-
-          lean4export_checkout=.ci/comparator/.lake/packages/lean4export
-          test "$(git -C "$lean4export_checkout" rev-parse HEAD)" = "$LEAN4EXPORT_REV"
-
-          comparator_bin="$GITHUB_WORKSPACE/.ci/comparator/.lake/build/bin/comparator"
-          lean4export_bin="$GITHUB_WORKSPACE/$lean4export_checkout/.lake/build/bin/lean4export"
-          test -x "$comparator_bin"
-          test -x "$lean4export_bin"
-          echo "COMPARATOR_BIN=$comparator_bin" >> "$GITHUB_ENV"
-          echo "LEAN4EXPORT_BIN=$lean4export_bin" >> "$GITHUB_ENV"
-
-      - name: Initialize the certificate without compiling the solution
-        run: |
-          set -euo pipefail
-
           cp lake-manifest.json "$RUNNER_TEMP/lake-manifest.json"
           lake update
           lake exe cache get
           cmp --silent "$RUNNER_TEMP/lake-manifest.json" lake-manifest.json
-
-          # A clean certificate must hand Solution.lean to Comparator as source,
-          # never as an artifact produced by an earlier, unsandboxed build.
-          test ! -e .lake/build/lib/lean/Solution.olean
+          test ! -e .lake/build/lib/lean/TTN.olean
           test ! -e .lake/build/lib/lean/TTN/Landscape/LocalMin.olean
-          jq -e '.enable_nanoda == false' audit/comparator/config.json > /dev/null
+          test ! -e .lake/build/lib/lean/TTN/Dynamics/ParityLowerBound.olean
+          jq -e '.enable_nanoda == true' comparator/main.json > /dev/null
+
+      - name: Build the pinned verification tools
+        run: |
+          set -euo pipefail
+          mkdir -p .ci
+
+          go install "github.com/zouuup/landrun/cmd/landrun@${LANDRUN_REV}"
+          landrun_bin="$(go env GOPATH)/bin/landrun"
+
+          git clone https://github.com/ammkrn/nanoda_lib.git .ci/nanoda
+          git -C .ci/nanoda checkout --detach "$NANODA_REV"
+          test "$(git -C .ci/nanoda rev-parse HEAD)" = "$NANODA_REV"
+          cargo "+$RUST_TOOLCHAIN" build --release --locked \
+            --manifest-path .ci/nanoda/Cargo.toml
+          nanoda_bin="$GITHUB_WORKSPACE/.ci/nanoda/target/release/nanoda_bin"
+
+          lake build comparator lean4export
+          comparator_bin="$GITHUB_WORKSPACE/.lake/packages/Comparator/.lake/build/bin/comparator"
+          lean4export_bin="$GITHUB_WORKSPACE/.lake/packages/lean4export/.lake/build/bin/lean4export"
+
+          test -x "$landrun_bin"
+          test -x "$nanoda_bin"
+          test -x "$comparator_bin"
+          test -x "$lean4export_bin"
+          echo "LANDRUN_BIN=$landrun_bin" >> "$GITHUB_ENV"
+          echo "NANODA_BIN=$nanoda_bin" >> "$GITHUB_ENV"
+          echo "COMPARATOR_BIN=$comparator_bin" >> "$GITHUB_ENV"
+          echo "LEAN4EXPORT_BIN=$lean4export_bin" >> "$GITHUB_ENV"
 
       - name: Require an effective Landrun filesystem sandbox
         run: |
@@ -145,7 +141,6 @@ jobs:
 
           "$LANDRUN_BIN" "${policy[@]}" /usr/bin/touch "$allowed"
           test -f "$allowed"
-
           if "$LANDRUN_BIN" "${policy[@]}" /usr/bin/touch "$denied"; then
             echo 'Landrun allowed a write outside the project .lake directory.' >&2
             exit 1
@@ -155,10 +150,6 @@ jobs:
       - name: Run Comparator under the outer systemd network guard
         run: |
           set -euo pipefail
-
-          # Comparator's own Landrun invocations isolate both builds and both
-          # exports. The outer transient unit is the additional AF_UNIX guard
-          # required by Comparator's upstream security instructions.
           sudo systemd-run --quiet --wait --pipe --collect \
             --uid="$(id -u)" \
             --gid="$(id -g)" \
@@ -170,11 +161,12 @@ jobs:
             --setenv="PATH=$PATH" \
             --setenv="COMPARATOR_LANDRUN=$LANDRUN_BIN" \
             --setenv="COMPARATOR_LEAN4EXPORT=$LEAN4EXPORT_BIN" \
-            "$(command -v lake)" env "$COMPARATOR_BIN" audit/comparator/config.json
+            --setenv="COMPARATOR_NANODA=$NANODA_BIN" \
+            "$(command -v lake)" env "$COMPARATOR_BIN" comparator/main.json
 
           {
             echo '### Comparator certificate passed'
             echo
-            echo 'The trusted Theorem 4.3 challenge matched the production theorem.'
-            echo 'The solution used only the permitted axioms and was accepted by the Lean kernel.'
+            echo 'The trusted challenge matched all three production declarations.'
+            echo 'The proofs used only the permitted axioms and passed Lean and Nanoda.'
           } >> "$GITHUB_STEP_SUMMARY"
