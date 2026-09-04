@@ -8,7 +8,7 @@ The repository has three complementary checks:
    important supporting results.
 3. Comparator checks the three main declarations against `Challenge.lean`,
    enforces the standard-axiom allowlist, and replays their proof terms with
-   Lean's kernel and Nanoda.
+   Lean's kernel.
 
 ## Comparator trust boundary
 
@@ -27,10 +27,10 @@ no-sorry gate scans only production sources.
 
 Comparator establishes that the challenge and production declarations have the
 same formal statements, that the production proofs use no axioms beyond
-`propext`, `Quot.sound`, and `Classical.choice`, and that both kernels accept
-the exported proofs. It does not establish that the formal statements faithfully
-express the manuscript; the manuscript authors reviewed that correspondence
-separately.
+`propext`, `Quot.sound`, and `Classical.choice`, and that Lean's kernel accepts
+the exported proofs. Comparator does not establish that the formal statements
+faithfully express the manuscript; the manuscript authors reviewed that
+correspondence separately.
 
 ## Version pins
 
@@ -41,8 +41,6 @@ separately.
 | Comparator | `fd2e25de155523dbce1f35d410511f9f63998461` |
 | lean4export | `8554815c2dc6b7abe99ec1f08849c9759ba77947` |
 | Landrun | `5ed4a3db3a4ad930d577215c6b9abaa19df7f99f` |
-| Nanoda | `05055695879dfebb6628a67da88ceca6cd6b0421` |
-| Rust (for Nanoda) | `1.89.0` |
 
 The repository revision pins the formalization and challenge themselves. A
 security-sensitive Comparator run should use a clean, immutable checkout and

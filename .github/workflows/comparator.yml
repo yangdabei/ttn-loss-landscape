@@ -35,13 +35,11 @@ concurrency:
 
 jobs:
   main-results:
-    name: Main results (Landrun + Lean kernel + Nanoda)
+    name: Main results (Landrun + Lean kernel)
     runs-on: ubuntu-24.04
     timeout-minutes: 120
     env:
       LANDRUN_REV: 5ed4a3db3a4ad930d577215c6b9abaa19df7f99f
-      NANODA_REV: 05055695879dfebb6628a67da88ceca6cd6b0421
-      RUST_TOOLCHAIN: 1.89.0
     defaults:
       run:
         shell: bash
@@ -79,9 +77,6 @@ jobs:
           go-version: '1.25.12'
           cache: false
 
-      - name: Install the pinned Rust toolchain
-        run: rustup toolchain install "$RUST_TOOLCHAIN" --profile minimal
-
       - name: Initialize without compiling production modules
         run: |
           set -euo pipefail
@@ -92,33 +87,22 @@ jobs:
           test ! -e .lake/build/lib/lean/TTN.olean
           test ! -e .lake/build/lib/lean/TTN/Landscape/LocalMin.olean
           test ! -e .lake/build/lib/lean/TTN/Dynamics/ParityLowerBound.olean
-          jq -e '.enable_nanoda == true' comparator/main.json > /dev/null
+          jq -e '.enable_nanoda == false' comparator/main.json > /dev/null
 
       - name: Build the pinned verification tools
         run: |
           set -euo pipefail
-          mkdir -p .ci
-
           go install "github.com/zouuup/landrun/cmd/landrun@${LANDRUN_REV}"
           landrun_bin="$(go env GOPATH)/bin/landrun"
-
-          git clone https://github.com/ammkrn/nanoda_lib.git .ci/nanoda
-          git -C .ci/nanoda checkout --detach "$NANODA_REV"
-          test "$(git -C .ci/nanoda rev-parse HEAD)" = "$NANODA_REV"
-          cargo "+$RUST_TOOLCHAIN" build --release --locked \
-            --manifest-path .ci/nanoda/Cargo.toml
-          nanoda_bin="$GITHUB_WORKSPACE/.ci/nanoda/target/release/nanoda_bin"
 
           lake build comparator lean4export
           comparator_bin="$GITHUB_WORKSPACE/.lake/packages/Comparator/.lake/build/bin/comparator"
           lean4export_bin="$GITHUB_WORKSPACE/.lake/packages/lean4export/.lake/build/bin/lean4export"
 
           test -x "$landrun_bin"
-          test -x "$nanoda_bin"
           test -x "$comparator_bin"
           test -x "$lean4export_bin"
           echo "LANDRUN_BIN=$landrun_bin" >> "$GITHUB_ENV"
-          echo "NANODA_BIN=$nanoda_bin" >> "$GITHUB_ENV"
           echo "COMPARATOR_BIN=$comparator_bin" >> "$GITHUB_ENV"
           echo "LEAN4EXPORT_BIN=$lean4export_bin" >> "$GITHUB_ENV"
 
@@ -161,12 +145,11 @@ jobs:
             --setenv="PATH=$PATH" \
             --setenv="COMPARATOR_LANDRUN=$LANDRUN_BIN" \
             --setenv="COMPARATOR_LEAN4EXPORT=$LEAN4EXPORT_BIN" \
-            --setenv="COMPARATOR_NANODA=$NANODA_BIN" \
             "$(command -v lake)" env "$COMPARATOR_BIN" comparator/main.json
 
           {
             echo '### Comparator certificate passed'
             echo
             echo 'The trusted challenge matched all three production declarations.'
-            echo 'The proofs used only the permitted axioms and passed Lean and Nanoda.'
+            echo 'The proofs used only the permitted axioms and passed Lean.'
           } >> "$GITHUB_STEP_SUMMARY"

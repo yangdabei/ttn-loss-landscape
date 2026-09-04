@@ -86,8 +86,8 @@ proof-dependent duplication. The three `sorry` bodies in `Challenge.lean` are
 intentional specification placeholders and are never imported by the
 production library.
 
-With the upstream Comparator sandbox requirements satisfied and `landrun`,
-`lean4export`, and `nanoda_bin` on `PATH`:
+With the upstream Comparator sandbox requirements satisfied and `landrun` and
+`lean4export` on `PATH`:
 
 ```sh
 lake exe cache get
@@ -96,9 +96,9 @@ lake exe comparator comparator/main.json
 
 The [Comparator configuration](comparator/main.json) checks statement
 agreement, enforces the three-standard-axiom allowlist, and replays the proofs
-with Lean's kernel and Nanoda. This verifies the formal statements and proof
-terms; their correspondence with the natural-language manuscript is the
-separate author-review claim described above. See the
+with Lean's kernel. This verifies the formal statements and proof terms; their
+correspondence with the natural-language manuscript is the separate
+author-review claim described above. See the
 [verification notes](docs/verification.md) for the trust boundary and pinned
 tool versions.
 
