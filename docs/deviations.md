@@ -31,19 +31,21 @@ For the main minimum-norm theorem, the nonzero, rank-deficient case is first
 compressed to the target cut ranks. The formal proof then selects a connected
 component of deficient edges and perturbs all tensors in that component in the
 dormant directions rather than following the paper's iterative stripping
-narrative. The stripping construction is nevertheless formalized in
-`TTN/Landscape/Strip.lean`.
+narrative. The separate stripping construction is not included in this release.
 
 The compression theorem requires a nonzero target because Lean encodes bond
 dimensions as positive naturals, so the final proof handles the zero target
 separately.
 
-## Explicit external hypotheses and incomplete scope
+## Results outside the release scope
 
-`exists_escape_path` assumes `hfiber`: every point has a path inside its fiber
-to a minimum-norm representative. The present library does not formalize the
-semialgebraic geometry and geometric-invariant-theory results used in the paper
-to justify that property.
+The escape-path corollary is not included in this release. Its proof requires
+a path within the initial parameter's fiber to a minimum-norm representative;
+the real algebraic geometry and geometric invariant theory used to establish
+this property are outside the scope of the formalization.
+
+The separate minimal two-factor factorization results are also omitted, since
+neither main theorem depends on them.
 
 The computational-hardness and Boolean-expressivity arguments are not part of
 the Lean development. Neither is the parity saddle case study.

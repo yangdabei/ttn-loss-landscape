@@ -50,9 +50,9 @@ The following qualifications matter:
 
 - Theorem 5.2 states the manuscript's standing target-realizability assumption
   explicitly.
-- Corollary 4.4 retains an explicit in-fiber path hypothesis, `hfiber`; the
-  required semialgebraic and geometric-invariant-theory results are not
-  formalized.
+- The escape-path corollary (Corollary 4.4) is outside the release scope;
+  its prerequisites from real algebraic geometry and geometric invariant
+  theory are not formalized.
 - The main development aggregates the external tensor modes at each node. A
   separate theorem bridges the realizability/rank characterization to literal
   individual external modes, but the full landscape theory is not transported

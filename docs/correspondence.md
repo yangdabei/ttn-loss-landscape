@@ -24,6 +24,3 @@ formalized` records a gap.
 | Lemma E.8 — Mixed terms vanish under a coordinated core perturbation | `TTN.Arch.represented_add_corePerturb` | `TTN/Landscape/CoreDescent.lean` | By specialisation | The paper statement is the component-supported instance. |
 | Lemma E.9 — Strict local descent | `TTN.Arch.exists_loss_lt_of_pow_move` | `TTN/Landscape/CoreDescent.lean` | By specialisation | The paper statement is the pure-power-move instance. |
 | Theorem 4.3 — Minimum-norm local minima are global | `TTN.Arch.minNorm_isLocalMin_represented_eq`; `TTN.Arch.minNorm_isLocalMin_isGlobalMin` | `TTN/Landscape/LocalMin.lean` | Exact | The paper's standing realizability assumption is explicit. |
-| Corollary 4.4 — Escape path from a non-solution | `TTN.Arch.exists_escape_path` | `TTN/Landscape/Escape.lean` | Conditional | Assumes the explicit in-fiber path hypothesis `hfiber`. |
-| Definition G.1 — Minimal two-factor factorization | `TTN.MinFac.IsMinimalFac` | `TTN/Landscape/MinFac.lean` | Exact | — |
-| Lemma G.2 — Minimal two-factor factorizations | `TTN.MinFac.isMinimalFac_iff_isCompl`; `exists_isMinimalFac_mem_closure_orbit`; `isMinimalFac_orbit` | `TTN/Landscape/MinFac.lean` | Exact | Split across the displayed declarations. |

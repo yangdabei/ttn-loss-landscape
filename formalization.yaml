@@ -45,10 +45,10 @@ status:
   scope: >-
     The development formalizes the main minimum-norm and full-Tucker-rank loss
     landscape theorems and their supporting realizability, dormant-subspace,
-    compression, descent, and factorization results. Corollary 4.4 retains an
-    explicit in-fiber path hypothesis. The parity example,
-    computational-hardness, and Boolean-expressivity arguments are outside the
-    Lean development; further qualifications are recorded in
+    compression, and descent results. The escape-path corollary, separate
+    stripping construction, minimal two-factor factorization results, parity
+    example, computational-hardness, and Boolean-expressivity arguments are
+    outside the release scope; further qualifications are recorded in
     docs/deviations.md.
   sorry_count: 0
   sorry_in_definitions: 0
@@ -116,8 +116,8 @@ fidelity:
     modes. The full-environment-rank lemma is proved in the leaf case consumed
     by the main argument. The proof uses connected-component dormant
     perturbations rather than the manuscript's iterative stripping narrative.
-    Corollary 4.4 has the explicit in-fiber path hypothesis hfiber. The
-    detailed qualifications and all specialization relations are recorded in
+    The escape-path corollary is outside the release scope. The detailed
+    qualifications and all specialization relations are recorded in
     docs/deviations.md and docs/correspondence.md.
 
 review:
