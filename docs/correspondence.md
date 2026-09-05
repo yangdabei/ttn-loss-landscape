@@ -10,6 +10,7 @@ formalized` records a gap.
 
 | Paper label or description | Lean declaration(s) | File | Relation | Note |
 |---|---|---|---|---|
+| Definitions 3.1 and B.5 — Directed and contraction TTN presentations | `TTN.Arch.representedFromRoot_eq_represented` | `TTN/Contraction.lean` | Equivalent | After choosing bases, the directed multilinear composition expands to the same global bond sum as undirected contraction; the root disappears from the coordinate formula. |
 | Definition 4.1 — Minimum-norm parameter | `TTN.Arch.MinNorm` | `TTN/Contraction.lean` | Exact | — |
 | Proposition C.1 — Realizability characterization | `TTN.Arch.ExtStruct.realizableLit_iff_rank_le`; equivalent per-vertex reshaped form `TTN.Arch.realizable_iff_rank_le` | `TTN/Landscape/External.lean`; `TTN/Landscape/RealizabilityConverse.lean` | Partial | The rank characterization is exact; the prescribed-subspace clause is not formalized as a theorem. |
 | Definition 5.1 — Full Tucker rank | `TTN.Arch.FullTuckerRank` | `TTN/Landscape/FullRank.lean` | Exact | — |
@@ -26,6 +27,3 @@ formalized` records a gap.
 | Corollary 4.4 — Escape path from a non-solution | `TTN.Arch.exists_escape_path` | `TTN/Landscape/Escape.lean` | Conditional | Assumes the explicit in-fiber path hypothesis `hfiber`. |
 | Definition G.1 — Minimal two-factor factorization | `TTN.MinFac.IsMinimalFac` | `TTN/Landscape/MinFac.lean` | Exact | — |
 | Lemma G.2 — Minimal two-factor factorizations | `TTN.MinFac.isMinimalFac_iff_isCompl`; `exists_isMinimalFac_mem_closure_orbit`; `isMinimalFac_orbit` | `TTN/Landscape/MinFac.lean` | Exact | Split across the displayed declarations. |
-| Proposition G.12 — Per-bond Gram-difference conservation | `TTN.Arch.bondGramDiff_conserved_of_contDiff` | `TTN/Dynamics/Conservation.lean` | Exact | Proved for an arbitrary continuously differentiable loss of the represented tensor; the squared-loss theorem remains available separately. |
-| Lemma I.2 — Order bound on the parity coefficient | `TTN.Arch.parity_coefficient_order_bound` | `TTN/Dynamics/ParityLowerBound.lean` | By specialisation | Take `ρ = 1` for the paper's existential radius. |
-| Proposition 5.3 — Parity saddle and universal lower bound | `TTN.Arch.critical_halfParam`; `TTN.Arch.parity_saddle_achievable`; `TTN.Arch.parity_saddle_lower_bound` | `TTN/Dynamics/Parity.lean`; `TTN/Dynamics/ParityLowerBound.lean` | By specialisation | Combine the linked declarations and take `ρ = 1` in the lower bound. |

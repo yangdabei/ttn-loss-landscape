@@ -5,7 +5,6 @@
 /comparator/README.md @yangdabei
 /TTN/Arch.lean @yangdabei
 /TTN/Contraction.lean @yangdabei
-/TTN/Dynamics/ParitySpec.lean @yangdabei
 /lakefile.toml @yangdabei
 /lake-manifest.json @yangdabei
 /lean-toolchain @yangdabei

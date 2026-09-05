@@ -7,9 +7,7 @@ primary model, and Claude Opus 4.8 was used for selected proof obligations.
 OpenAI's GPT-5.5 model was used mainly for mathematical audits and
 proof-strategy review and supplied two small Lean proof bodies.
 
-On 1 September 2026, OpenAI's GPT-5.6-Sol model was used to formalize the
-manuscript's universal parity-saddle lower bound (Lemma I.2 and Proposition
-5.3). Subscription access was used for both the Anthropic and OpenAI models.
+Subscription access was used for both the Anthropic and OpenAI models.
 
 A complete project-level record of token use, wall time, and billed cost was not
 retained, so no API-equivalent cost is estimated. Candidate code was integrated

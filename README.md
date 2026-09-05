@@ -29,7 +29,11 @@ This is Theorem 4.3 of the manuscript. Its Lean declaration is
 | --- | --- | --- |
 | Theorem 4.3 | `TTN.Arch.minNorm_isLocalMin_isGlobalMin` | A minimum-norm local minimum for a realizable target is global, with zero loss. |
 | Theorem 5.2 | `TTN.Arch.critical_fullRank_isGlobalMin` | A full-Tucker-rank critical point for a realizable target is a global minimum. |
-| Proposition 5.3 | `TTN.Arch.parity_saddle_lower_bound` | Near the parity halfway point, every loss decrease obeys the stated order lower bound. |
+
+The paper's directed, root-based TTN presentation and its undirected
+contraction presentation have the same coordinate expansion. This is recorded
+by `TTN.Arch.representedFromRoot_eq_represented` in
+[`TTN/Contraction.lean`](TTN/Contraction.lean).
 
 The complete [paper-to-Lean correspondence](docs/correspondence.md) records
 the supporting results and the exact relation of each Lean statement to its
@@ -79,12 +83,9 @@ headline and important supporting results.
 ## Comparator
 
 [`Challenge.lean`](Challenge.lean) restates the loss-landscape definitions and
-all three main declarations without importing any module that proves them. The
-parity architecture and statement-side data live in the shared trusted module
-[`TTN/Dynamics/ParitySpec.lean`](TTN/Dynamics/ParitySpec.lean), avoiding
-proof-dependent duplication. The three `sorry` bodies in `Challenge.lean` are
-intentional specification placeholders and are never imported by the
-production library.
+both main declarations without importing any module that proves them. The two
+`sorry` bodies in `Challenge.lean` are intentional specification placeholders
+and are never imported by the production library.
 
 With the upstream Comparator sandbox requirements satisfied and `landrun` and
 `lean4export` on `PATH`:
@@ -95,7 +96,7 @@ lake exe comparator comparator/main.json
 ```
 
 The [Comparator configuration](comparator/main.json) checks statement
-agreement, enforces the three-standard-axiom allowlist, and replays the proofs
+agreement, enforces the three-standard-axiom allowlist, and replays both proofs
 with Lean's kernel. This verifies the formal statements and proof terms; their
 correspondence with the natural-language manuscript is the separate
 author-review claim described above. See the

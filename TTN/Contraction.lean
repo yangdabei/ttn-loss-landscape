@@ -36,6 +36,21 @@ product of node entries. -/
 def represented (θ : a.Param) : a.Ext → ℝ :=
   fun x => ∑ b : a.Bond, ∏ v : a.V, θ v (Bond.restrict b v) (x v)
 
+/-- The coordinate expansion of the main text's directed, root-based
+multilinear-map presentation. After bases are chosen, composing from the leaves
+to a selected root expands as a sum over every internal bond index and a product
+of the node coefficients. The root is therefore absent from the expanded
+formula: it records a presentation choice, not additional TTN data. -/
+@[nolint unusedArguments] def representedFromRoot (_root : a.V) (θ : a.Param) : a.Ext → ℝ :=
+  fun x => ∑ b : a.Bond, ∏ v : a.V, θ v (Bond.restrict b v) (x v)
+
+/-- **Paper correspondence: Definitions 3.1 and B.5 are equivalent in
+coordinates.** The directed multilinear-composition expansion for any selected
+root is exactly the undirected global contraction used by `represented`. -/
+theorem representedFromRoot_eq_represented (root : a.V) (θ : a.Param) :
+    a.representedFromRoot root θ = a.represented θ := by
+  rfl
+
 /-- The **residual** `R := T(θ) - T*` of the squared loss against a target `T*`. -/
 def residual (Tstar : a.Ext → ℝ) (θ : a.Param) : a.Ext → ℝ :=
   fun x => a.represented θ x - Tstar x

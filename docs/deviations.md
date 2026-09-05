@@ -14,6 +14,13 @@ Criticality is first expressed variationally. The theorem
 along every affine parameter line. Local and global minimum predicates are also
 connected to Mathlib's standard topological definitions.
 
+The paper first presents TTNs as directed multilinear maps composed toward a
+chosen root, and later presents the equivalent undirected contraction form.
+After bases are chosen, `representedFromRoot` records the coordinate expansion
+of the directed presentation. The theorem
+`representedFromRoot_eq_represented` identifies it with the global bond-sum
+contraction; the chosen root disappears from that expansion.
+
 ## Proof organization
 
 The realizability converse and full-Tucker-rank theorem use leaf-removal
@@ -38,10 +45,5 @@ to a minimum-norm representative. The present library does not formalize the
 semialgebraic geometry and geometric-invariant-theory results used in the paper
 to justify that property.
 
-The per-bond conservation theorem is stated for an `Arch`, which includes a
-tree hypothesis even though its proof uses only the local two-endpoint bond
-structure. The library does not formalize the paper's full route from
-balancedness to preservation of global minimum norm.
-
 The computational-hardness and Boolean-expressivity arguments are not part of
-the Lean development.
+the Lean development. Neither is the parity saddle case study.

@@ -1,18 +1,17 @@
 import TTN.Contraction
-import TTN.Dynamics.ParitySpec
 
 /-!
 # Trusted comparison statements
 
 This module is the trusted statement side of the Comparator certificate. It was
 written after the production proofs, so it is not an independent pre-solution
-challenge. Its three theorem placeholders are intentional; the production
+challenge. Its two theorem placeholders are intentional; the production
 library never imports this module.
 
-The challenge imports the TTN architecture and contraction layer plus the
-shared parity specification. It repeats the loss-landscape definitions needed
-for Theorem 5.2 and Theorem 4.3. Comparator checks those definitions and all
-three target statements against the production environment.
+The challenge imports only the TTN architecture and contraction layer. It
+repeats the loss-landscape definitions needed for Theorem 5.2 and Theorem 4.3.
+Comparator checks those definitions and both target statements against the
+production environment.
 -/
 
 open scoped Matrix MatrixOrder
@@ -57,22 +56,6 @@ theorem minNorm_isLocalMin_isGlobalMin {a : Arch} {Tstar : a.Ext → ℝ}
     (hreal : a.Realizable Tstar)
     {θ : a.Param} (hmn : a.MinNorm θ) (hloc : IsLocalMin (a.loss Tstar) θ) :
     a.IsGlobalMin Tstar θ ∧ a.loss Tstar θ = 0 := by
-  sorry
-
-/-! ## Parity lower-bound statement
-
-The architecture, target, halfway point, and distance are imported from the
-shared trusted specification module.
-
--/
-
-theorem parity_saddle_lower_bound (k : ℕ) (hk : 2 ≤ k) :
-    ∃ C : ℝ, 0 < C ∧ ∀ θ : (parityArch k hk).Param,
-      (parityArch k hk).paramDist θ (halfParam k hk) ≤ 1 →
-      (parityArch k hk).loss (parityTarget k hk) θ -
-          (parityArch k hk).loss (parityTarget k hk) (halfParam k hk) ≥
-        -C * (parityArch k hk).paramDist θ (halfParam k hk) ^
-          (2 ^ (k - 1) + 1) := by
   sorry
 
 end Arch

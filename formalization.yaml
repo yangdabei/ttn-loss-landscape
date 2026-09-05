@@ -23,8 +23,8 @@ sources:
       - "Liam Hodgkinson"
     type: "manuscript"
     location: >-
-      Theorem 4.3, Theorem 5.2, Proposition 5.3, and the supporting results
-      indexed in docs/correspondence.md
+      Theorem 4.3, Theorem 5.2, and the supporting results indexed in
+      docs/correspondence.md
     relationship: "formalizes"
     author_endorsement: "endorsed"
     note: >-
@@ -44,11 +44,11 @@ classification:
 status:
   scope: >-
     The development formalizes the main minimum-norm and full-Tucker-rank loss
-    landscape theorems, the parity-saddle lower bound, and their supporting
-    realizability, dormant-subspace, compression, descent, factorization, and
-    conservation results. Corollary 4.4 retains an explicit in-fiber path
-    hypothesis. Computational-hardness and Boolean-expressivity arguments are
-    outside the Lean development; further qualifications are recorded in
+    landscape theorems and their supporting realizability, dormant-subspace,
+    compression, descent, and factorization results. Corollary 4.4 retains an
+    explicit in-fiber path hypothesis. The parity example,
+    computational-hardness, and Boolean-expressivity arguments are outside the
+    Lean development; further qualifications are recorded in
     docs/deviations.md.
   sorry_count: 0
   sorry_in_definitions: 0
@@ -77,19 +77,6 @@ status:
         - "propext"
         - "Classical.choice"
         - "Quot.sound"
-    - declaration: "TTN.Arch.parity_saddle_lower_bound"
-      file: "TTN/Dynamics/ParityLowerBound.lean"
-      source_result: "Proposition 5.3"
-      relation: "By specialisation"
-      comparator_config: "comparator/main.json"
-      note: >-
-        Take rho = 1 for the manuscript's existential neighborhood radius.
-      sorry_count: 0
-      axioms:
-        - "propext"
-        - "Classical.choice"
-        - "Quot.sound"
-
 automation:
   methods:
     - method: "agent"
@@ -109,7 +96,7 @@ automation:
       tool_setup: "OpenAI subscription-based access with Lean tooling."
       prompting_notes: >-
         Used for mathematical audits, proof-strategy review, selected proof
-        bodies, the parity-saddle lower bound, and release verification.
+        bodies, and release verification.
     - method: "manual"
       tool_setup: >-
         Human integration, repository organization, and statement-level
@@ -121,7 +108,10 @@ automation:
 
 fidelity:
   divergences: >-
-    External modes are aggregated per node in the main development; the
+    The directed root-based and undirected contraction presentations are
+    identified after coordinate expansion by
+    TTN.Arch.representedFromRoot_eq_represented. External modes are aggregated
+    per node in the main development; the
     realizability/rank characterization alone is bridged to literal individual
     modes. The full-environment-rank lemma is proved in the leaf case consumed
     by the main argument. The proof uses connected-component dormant
@@ -138,13 +128,18 @@ review:
     - "Liam Hodgkinson"
   notes: >-
     The manuscript authors checked the faithfulness of the mapped Lean
-    statements. Comparator checks the three main formal statements and proof
+    statements. Comparator checks the two main formal statements and proof
     terms; AxiomAudit.lean reports their Lean-kernel axiom dependencies.
 
 alignment:
   namespace: "TTN"
   index: "docs/correspondence.md"
   statements:
+    - source: "Definitions 3.1 and B.5 — Directed and contraction TTN presentations"
+      lean: "TTN.Arch.representedFromRoot_eq_represented"
+      module: "TTN/Contraction.lean"
+      status: "proved"
+      relation: "Equivalent"
     - source: "Theorem 4.3 — Minimum-norm local minima are global"
       lean: "TTN.Arch.minNorm_isLocalMin_isGlobalMin"
       module: "TTN/Landscape/LocalMin.lean"
@@ -155,17 +150,6 @@ alignment:
       module: "TTN/Landscape/FullRank.lean"
       status: "proved"
       relation: "Exact"
-    - source: "Proposition 5.3 — Parity saddle and universal lower bound"
-      lean:
-        - "TTN.Arch.critical_halfParam"
-        - "TTN.Arch.parity_saddle_achievable"
-        - "TTN.Arch.parity_saddle_lower_bound"
-      module:
-        - "TTN/Dynamics/Parity.lean"
-        - "TTN/Dynamics/ParityLowerBound.lean"
-      status: "proved"
-      relation: "By specialisation"
-
 acknowledgements: >-
   Built with Lean 4 and Mathlib. We thank their contributors and the manuscript
   authors for reviewing the source-to-Lean statement correspondence.

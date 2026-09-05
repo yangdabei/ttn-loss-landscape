@@ -6,22 +6,17 @@ The repository has three complementary checks:
    `axiom` declarations in the production library.
 2. `AxiomAudit.lean` asks Lean to report the axiom dependencies of the main and
    important supporting results.
-3. Comparator checks the three main declarations against `Challenge.lean`,
+3. Comparator checks the two main declarations against `Challenge.lean`,
    enforces the standard-axiom allowlist, and replays their proof terms with
    Lean's kernel.
 
 ## Comparator trust boundary
 
-`Challenge.lean` imports `TTN.Contraction`, the shared trusted parity
-specification `TTN.Dynamics.ParitySpec`, and their transitive imports. It
-repeats the loss-landscape definitions needed to state Theorem 4.3 and Theorem
-5.2. The parity architecture, target, halfway point, and parameter distance are
-defined once in `ParitySpec` so that proof-generated implementation constants
-cannot make an otherwise identical Comparator statement differ. Neither
-trusted statement module imports a production module containing any of the
-three target theorems.
+`Challenge.lean` imports `TTN.Contraction` and its transitive imports. It repeats
+the loss-landscape definitions needed to state Theorem 4.3 and Theorem 5.2, but
+does not import a production module containing either target theorem.
 
-The three theorem `sorry` bodies in `Challenge.lean` are intentional
+The two theorem `sorry` bodies in `Challenge.lean` are intentional
 specification holes. The production library never imports `Challenge`, and the
 no-sorry gate scans only production sources.
 

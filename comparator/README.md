@@ -9,7 +9,7 @@ lake exe cache get
 lake exe comparator comparator/main.json
 ```
 
-The certificate compares the three [main results](../README.md#main-declarations)
+The certificate compares the two [main results](../README.md#main-declarations)
 with the trusted `Challenge.lean`, permits only `propext`, `Quot.sound`, and
 `Classical.choice`, and replays the proofs with Lean's kernel. It checks the
 formal statements and proof terms, not their correspondence with the

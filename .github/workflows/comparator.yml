@@ -86,7 +86,6 @@ jobs:
           cmp --silent "$RUNNER_TEMP/lake-manifest.json" lake-manifest.json
           test ! -e .lake/build/lib/lean/TTN.olean
           test ! -e .lake/build/lib/lean/TTN/Landscape/LocalMin.olean
-          test ! -e .lake/build/lib/lean/TTN/Dynamics/ParityLowerBound.olean
           jq -e '.enable_nanoda == false' comparator/main.json > /dev/null
 
       - name: Build the pinned verification tools
@@ -150,6 +149,6 @@ jobs:
           {
             echo '### Comparator certificate passed'
             echo
-            echo 'The trusted challenge matched all three production declarations.'
+            echo 'The trusted challenge matched both production declarations.'
             echo 'The proofs used only the permitted axioms and passed Lean.'
           } >> "$GITHUB_STEP_SUMMARY"
