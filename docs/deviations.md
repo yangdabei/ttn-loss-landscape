@@ -9,10 +9,13 @@ individual external legs and proves the realizability/rank characterization for
 that literal formulation; it does not transport the entire landscape
 development to individual-mode coordinates.
 
-Criticality is first expressed variationally. The theorem
-`critical_iff_hasDerivAt_line` identifies it with vanishing Mathlib derivatives
-along every affine parameter line. Local and global minimum predicates are also
-connected to Mathlib's standard topological definitions.
+`Critical Tstar θ` is defined by `HasFDerivAt (𝕜 := ℝ) (a.loss Tstar) 0 θ`.
+The theorem `critical_iff_nodewiseCritical` in
+`TTN/Landscape/CriticalityBasic.lean` proves equivalence with the nodewise
+residual-pairing condition used in the algebraic proofs. The line-derivative
+characterization `critical_iff_hasDerivAt_line` remains available. Local and
+global minimum predicates are also connected to Mathlib's standard topological
+definitions.
 
 The paper first presents TTNs as directed multilinear maps composed toward a
 chosen root, and later presents the equivalent undirected contraction form.

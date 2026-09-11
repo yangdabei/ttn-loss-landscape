@@ -784,7 +784,7 @@ theorem minNorm_rank_add_finrank_dormant {u w : a.V} (h : a.G.Adj u w) {θ : a.P
 /-! ### Criticality in the bond frame -/
 
 /-- **Bond-frame stationarity**: at a critical point, `F_eᵀ · R⁽ᵉ⁾ · H_e = 0` for the
-matricized residual `R⁽ᵉ⁾ = T⁽ᵉ⁾ − T*⁽ᵉ⁾`. Proof: instantiate `Critical` at `w` with the
+matricized residual `R⁽ᵉ⁾ = T⁽ᵉ⁾ − T*⁽ᵉ⁾`. Proof: use the nodewise characterization of `Critical` at `w` with the
 mode-`e` perturbation `δ = modeMul N (θ w)` for arbitrary `N`; by `Hfun_update_modeMul` /
 `Ffun_update_col` the variation matricizes to `F N Hᵀ`, and the pairing is
 `tr(R⁽ᵉ⁾ᵀ F N Hᵀ) = ⟨FᵀR⁽ᵉ⁾H, N⟩ = 0` for all `N`. This is the ONLY entry point of
@@ -792,6 +792,7 @@ criticality into the target-alignment layer. -/
 theorem critical_bond_identity {Tstar : a.Ext → ℝ} {θ : a.Param} (hcrit : a.Critical Tstar θ)
     {u w : a.V} (h : a.G.Adj u w) :
     (a.Ffun h θ)ᵀ * (a.matricize h θ - a.matricizeOf h Tstar) * a.Hfun h θ = 0 := by
+  have hcrit := (a.critical_iff_nodewiseCritical Tstar θ).mp hcrit
   classical
   set R := a.matricize h θ - a.matricizeOf h Tstar with hR
   set P := (a.Ffun h θ)ᵀ * R * a.Hfun h θ with hP

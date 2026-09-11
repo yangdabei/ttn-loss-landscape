@@ -352,6 +352,9 @@ theorem critical_compressParam
     (hortho : ∀ E, ι E * (ι E)ᵀ = 1) {Tstar : a.Ext → ℝ} {θ : a.Param}
     (hsupp : SupportedOn (r' := r') ι θ) (hcrit : a.Critical Tstar θ) :
     (a.reDim r' hr').Critical Tstar (compressParam (hr' := hr') ι θ) := by
+  have hcrit := (a.critical_iff_nodewiseCritical Tstar θ).mp hcrit
+  apply ((a.reDim r' hr').critical_iff_nodewiseCritical
+    Tstar (compressParam (hr' := hr') ι θ)).mpr
   intro v δ'
   have hpair := hcrit v (fun bi xv => ∑ bi' : (a.reDim r' hr').BondIdx v,
     (∏ e : (a.reDim r' hr').Inc v, ι ⟨e.1, e.2.1⟩ (bi' e) (bi (ofReDimInc e))) * δ' bi' xv)

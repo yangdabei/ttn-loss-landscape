@@ -1,4 +1,5 @@
 import TTN.Landscape.RealizabilityConverse
+import TTN.Landscape.CriticalityBasic
 
 /-!
 # No spurious critical points at full Tucker rank
@@ -18,9 +19,9 @@ removal, the reduction in `RealizabilityConverse.lean`, and the QR gauge
 * **Realizability** is an explicit hypothesis (`hreal` / `RankBound`) of Theorem 5.2 here. The
   paper's statement leaves it implicit (its proof invokes "Realizability gives
   `rank(T*⁽ᵉ⁾) ≤ r_e`", a standing assumption on the target throughout §5).
-* **`Critical`** is stated variationally (all first-order variations vanish); the bridge to
-  Mathlib's derivative — `Critical ↔` every line derivative of the loss vanishes, in the
-  `HasDerivAt` sense — is `critical_iff_hasDerivAt_line` in `TTN/Landscape/Criticality.lean`.
+* **`Critical`** uses Mathlib's `HasFDerivAt` with zero derivative. The theorem
+  `critical_iff_nodewiseCritical` in `TTN/Landscape/CriticalityBasic.lean` converts
+  this hypothesis to the nodewise residual-pairing condition used in the proofs.
 -/
 
 open scoped Matrix MatrixOrder
@@ -46,14 +47,6 @@ every node `v` and every incident bond `e`, the mode-`e` unfolding of `W_v` has 
 "for every internal edge and each endpoint, `matₑ(W_v)` has rank `r_e`".) -/
 def FullTuckerRank (θ : a.Param) : Prop :=
   ∀ (v : a.V) (e : a.Inc v), (a.matE v e (θ v)).rank = a.r e.1
-
-/-- **Critical point** of the squared loss `L(θ) = ½‖T(θ) - T*‖²`. Variational form: every
-first-order variation vanishes. `represented (update θ v δ)` is exactly the directional
-derivative of `T` in the direction of perturbing `W_v` by `δ` (the represented tensor is
-multilinear — degree one in each node tensor), so this says `∇L(θ) = 0`. -/
-def Critical (Tstar : a.Ext → ℝ) (θ : a.Param) : Prop :=
-  ∀ (v : a.V) (δ : a.NodeTensor v),
-    ∑ x : a.Ext, a.residual Tstar θ x * a.represented (Function.update θ v δ) x = 0
 
 /-- **Global minimum** of the squared loss. -/
 def IsGlobalMin (Tstar : a.Ext → ℝ) (θ : a.Param) : Prop :=
@@ -144,10 +137,11 @@ theorem rowOf_v_value {v u : a.V} (hl : a.IsLeafWith v u) (row : a.Row hl.1) :
 
 /-- **Criticality at the leaf pins the residual's column space** (Theorem 5.2, Step 1): the
 matricized residual, right-multiplied by the cut factor `Hfun`, vanishes. This is where the
-variational `Critical` condition feeds the linear-algebra argument. -/
+nodewise characterization of `Critical` feeds the linear-algebra argument. -/
 theorem crit_leaf {v u : a.V} (hl : a.IsLeafWith v u) {Tstar : a.Ext → ℝ} {θ : a.Param}
     (hcrit : a.Critical Tstar θ) :
     a.matricizeOf hl.1 (a.residual Tstar θ) * a.Hfun hl.1 θ = 0 := by
+  have hcrit := (a.critical_iff_nodewiseCritical Tstar θ).mp hcrit
   classical
   set Rmat := a.matricizeOf hl.1 (a.residual Tstar θ) with hRmat
   set P := Rmat * a.Hfun hl.1 θ with hP
@@ -1541,6 +1535,8 @@ theorem gaugeLeaf_critical {v u : a.V} (hl : a.IsLeafWith v u)
     {M : Matrix (Fin (a.r s(v, u))) (Fin (a.r s(v, u))) ℝ} (hMdet : IsUnit M.det)
     {Tstar : a.Ext → ℝ} {θ : a.Param} (hcrit : a.Critical Tstar θ) :
     a.Critical Tstar (a.gaugeLeaf hl M θ) := by
+  have hcrit := (a.critical_iff_nodewiseCritical Tstar θ).mp hcrit
+  apply (a.critical_iff_nodewiseCritical Tstar (a.gaugeLeaf hl M θ)).mpr
   have hMMr : M⁻¹ * M = 1 := Matrix.nonsing_inv_mul M hMdet
   have hres : ∀ x, a.residual Tstar (a.gaugeLeaf hl M θ) x = a.residual Tstar θ x :=
     fun x => by simp only [residual, a.gaugeLeaf_represented hl hMdet θ]
@@ -1835,6 +1831,9 @@ theorem reduced_critical {v u : a.V} (hl : a.IsLeafWith v u) {Tstar : a.Ext → 
     {B : Matrix (a.Col hl.1) (Fin (a.r s(v, u))) ℝ}
     (hAB : a.matricizeOf hl.1 Tstar = a.Ffun hl.1 θ * Bᵀ) :
     (a.reducedArch hl).Critical (a.Tred hl B) (a.reducedParam hl θ) := by
+  have hcrit := (a.critical_iff_nodewiseCritical Tstar θ).mp hcrit
+  apply ((a.reducedArch hl).critical_iff_nodewiseCritical
+    (a.Tred hl B) (a.reducedParam hl θ)).mpr
   classical
   intro wr δ
   -- The reduced perturbation `δ` at `wr` lifts to a perturbation `δ'` of `θ` at `wr.1`.
@@ -1975,7 +1974,7 @@ theorem critical_fullRank_represented_eq_aux :
         simp only [Fin.val_cast]
         exact (congrArg (fun w => (x w).val) (Subsingleton.elim w₀ w'))
       have hsq : ∑ x : b.Ext, b.residual T θ x * b.residual T θ x = 0 := by
-        have := hcrit w₀ δ₀
+        have := (b.critical_iff_nodewiseCritical T θ).mp hcrit w₀ δ₀
         rw [Finset.sum_congr rfl (fun x _ => by rw [hrep_upd x])] at this
         exact this
       funext x
@@ -2000,7 +1999,7 @@ theorem critical_fullRank_represented_eq {Tstar : a.Ext → ℝ} (hreal : a.Real
 A full-Tucker-rank critical point of a realizable target is
 a global minimum of the loss. The realizability hypothesis `hreal` is implicit in the paper's
 statement (its proof uses "Realizability gives `rank(T*⁽ᵉ⁾) ≤ r_e`" as a standing assumption);
-we make it explicit. `Critical` is bridged to Mathlib's `HasDerivAt` in `TTN/Landscape/Criticality.lean`. -/
+we make it explicit. `Critical` is defined by the vanishing Fréchet derivative of the loss. -/
 theorem critical_fullRank_isGlobalMin {Tstar : a.Ext → ℝ} (hreal : a.Realizable Tstar)
     {θ : a.Param} (hcrit : a.Critical Tstar θ) (hftr : a.FullTuckerRank θ) :
     a.IsGlobalMin Tstar θ := by
