@@ -20,6 +20,7 @@ sources:
     authors:
       - "Zach Furman"
       - "Stephan Wäldchen"
+      - "Yangda Bei"
       - "Liam Hodgkinson"
     type: "manuscript"
     location: >-
@@ -31,15 +32,6 @@ sources:
       The manuscript does not yet have a public URL. Its authors checked that
       the mapped Lean statements faithfully represent the corresponding
       manuscript statements.
-
-classification:
-  arxiv:
-    - "cs.LG"
-    - "math.OC"
-  msc2020:
-    - "15A69"
-    - "68T07"
-    - "90C26"
 
 status:
   scope: >-
@@ -122,10 +114,6 @@ fidelity:
 
 review:
   status: "author-verified"
-  reviewers:
-    - "Zach Furman"
-    - "Stephan Wäldchen"
-    - "Liam Hodgkinson"
   notes: >-
     The manuscript authors checked the faithfulness of the mapped Lean
     statements. Comparator checks the two main formal statements and proof
