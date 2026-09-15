@@ -19,10 +19,14 @@ keywords:
 preferred-citation:
   type: article
   title: "Benign Loss Landscapes Can Coexist with Worst-Case Hardness"
+  url: "https://arxiv.org/abs/2609.13057"
+  year: 2026
   authors:
     - family-names: Furman
       given-names: Zach
     - family-names: Wäldchen
       given-names: Stephan
+    - family-names: Bei
+      given-names: Yangda
     - family-names: Hodgkinson
       given-names: Liam

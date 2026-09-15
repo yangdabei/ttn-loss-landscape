@@ -17,6 +17,7 @@ project:
 
 sources:
   - title: "Benign Loss Landscapes Can Coexist with Worst-Case Hardness"
+    id: "https://arxiv.org/abs/2609.13057"
     authors:
       - "Zach Furman"
       - "Stephan Wäldchen"
@@ -29,9 +30,8 @@ sources:
     relationship: "formalizes"
     author_endorsement: "endorsed"
     note: >-
-      The manuscript does not yet have a public URL. Its authors checked that
-      the mapped Lean statements faithfully represent the corresponding
-      manuscript statements.
+      Its authors checked that the mapped Lean statements faithfully
+      represent the corresponding manuscript statements.
 
 status:
   scope: >-

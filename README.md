@@ -1,9 +1,9 @@
 # TTN Loss Landscapes
 
 This repository contains a Lean 4 formalization of the principal
-loss-landscape results accompanying *Benign Loss Landscapes Can Coexist with
-Worst-Case Hardness* by Zach Furman, Stephan Wäldchen, and Liam Hodgkinson.
-The manuscript does not yet have a public URL.
+loss-landscape results accompanying [*Benign Loss Landscapes Can Coexist with
+Worst-Case Hardness*](https://arxiv.org/abs/2609.13057) by Zach Furman,
+Stephan Wäldchen, Yangda Bei, and Liam Hodgkinson.
 
 ## The result
 
